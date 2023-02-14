@@ -13,7 +13,9 @@ to ARP requests.
 
 ## How to build
 
-Run make to build.  Ensure that the Xilinx Vivado toolchain components are
+:warning: *<ins>To build the IP core for the ZCU102 SoC part you need a Vivado license</ins>*. In case you don't have it, you can either fetch it from [here](https://www.xilinx.com/support/licensing_solution_center.html) or use the the default "30 day evaluation license"  that comes with Vivado default installation.
+
+Run `make` to build.  Ensure that the Xilinx Vivado toolchain components are
 in PATH.  
 
 ## How to test
