@@ -13,9 +13,14 @@ to ARP requests.
 
 ## How to build
 
-Run make to build.  Ensure that the Xilinx Vivado toolchain components are
-in PATH.  
+:warning: *<ins>To build the IP core for the reference design example here
+you need a Vivado license</ins>*. In case you don't have it, you can either
+fetch it from [here](https://www.xilinx.com/support/licensing_solution_center.html)
+or use the the default "30 day evaluation license"  that comes with Vivado default
+installation.
 
+Run `make` to build.  Ensure that the Xilinx Vivado toolchain components are
+in PATH.  
 ## How to test
 
 Run make program to program the ZCU106 board with Vivado.  Then run
