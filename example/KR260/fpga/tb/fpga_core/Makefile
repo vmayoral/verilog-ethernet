@@ -93,3 +93,5 @@ iverilog_dump.v:
 clean::
 	@rm -rf iverilog_dump.v
 	@rm -rf dump.fst $(TOPLEVEL).fst
+	@rm -rf __pycache__
+	@rm results.xml
