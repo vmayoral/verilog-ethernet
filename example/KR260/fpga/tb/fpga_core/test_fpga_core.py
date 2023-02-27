@@ -53,21 +53,6 @@ class TB:
         cocotb.start_soon(Clock(dut.sfp0_tx_clk, 6.4, units="ns").start())
         self.sfp0_sink = XgmiiSink(dut.sfp0_txd, dut.sfp0_txc, dut.sfp0_tx_clk, dut.sfp0_tx_rst)
 
-        cocotb.start_soon(Clock(dut.sfp1_rx_clk, 6.4, units="ns").start())
-        self.sfp1_source = XgmiiSource(dut.sfp1_rxd, dut.sfp1_rxc, dut.sfp1_rx_clk, dut.sfp1_rx_rst)
-        cocotb.start_soon(Clock(dut.sfp1_tx_clk, 6.4, units="ns").start())
-        self.sfp1_sink = XgmiiSink(dut.sfp1_txd, dut.sfp1_txc, dut.sfp1_tx_clk, dut.sfp1_tx_rst)
-
-        cocotb.start_soon(Clock(dut.sfp2_rx_clk, 6.4, units="ns").start())
-        self.sfp2_source = XgmiiSource(dut.sfp2_rxd, dut.sfp2_rxc, dut.sfp2_rx_clk, dut.sfp2_rx_rst)
-        cocotb.start_soon(Clock(dut.sfp2_tx_clk, 6.4, units="ns").start())
-        self.sfp2_sink = XgmiiSink(dut.sfp2_txd, dut.sfp2_txc, dut.sfp2_tx_clk, dut.sfp2_tx_rst)
-
-        cocotb.start_soon(Clock(dut.sfp3_rx_clk, 6.4, units="ns").start())
-        self.sfp3_source = XgmiiSource(dut.sfp3_rxd, dut.sfp3_rxc, dut.sfp3_rx_clk, dut.sfp3_rx_rst)
-        cocotb.start_soon(Clock(dut.sfp3_tx_clk, 6.4, units="ns").start())
-        self.sfp3_sink = XgmiiSink(dut.sfp3_txd, dut.sfp3_txc, dut.sfp3_tx_clk, dut.sfp3_tx_rst)
-
         # No push buttons, nor DIP switches
         #
         # dut.btnu.setimmediatevalue(0)
@@ -77,20 +62,16 @@ class TB:
         # dut.btnc.setimmediatevalue(0)
         # dut.sw.setimmediatevalue(0)
 
-        dut.uart_rxd.setimmediatevalue(0)
-        dut.uart_rts.setimmediatevalue(0)
+        # No PL-side UART
+        #
+        # dut.uart_rxd.setimmediatevalue(0)
+        # dut.uart_rts.setimmediatevalue(0)
 
     async def init(self):
 
         self.dut.rst.setimmediatevalue(0)
         self.dut.sfp0_rx_rst.setimmediatevalue(0)
         self.dut.sfp0_tx_rst.setimmediatevalue(0)
-        self.dut.sfp1_rx_rst.setimmediatevalue(0)
-        self.dut.sfp1_tx_rst.setimmediatevalue(0)
-        self.dut.sfp2_rx_rst.setimmediatevalue(0)
-        self.dut.sfp2_tx_rst.setimmediatevalue(0)
-        self.dut.sfp3_rx_rst.setimmediatevalue(0)
-        self.dut.sfp3_tx_rst.setimmediatevalue(0)
 
         for k in range(10):
             await RisingEdge(self.dut.clk)
@@ -98,12 +79,6 @@ class TB:
         self.dut.rst.value = 1
         self.dut.sfp0_rx_rst.value = 1
         self.dut.sfp0_tx_rst.value = 1
-        self.dut.sfp1_rx_rst.value = 1
-        self.dut.sfp1_tx_rst.value = 1
-        self.dut.sfp2_rx_rst.value = 1
-        self.dut.sfp2_tx_rst.value = 1
-        self.dut.sfp3_rx_rst.value = 1
-        self.dut.sfp3_tx_rst.value = 1
 
         for k in range(10):
             await RisingEdge(self.dut.clk)
@@ -111,12 +86,6 @@ class TB:
         self.dut.rst.value = 0
         self.dut.sfp0_rx_rst.value = 0
         self.dut.sfp0_tx_rst.value = 0
-        self.dut.sfp1_rx_rst.value = 0
-        self.dut.sfp1_tx_rst.value = 0
-        self.dut.sfp2_rx_rst.value = 0
-        self.dut.sfp2_tx_rst.value = 0
-        self.dut.sfp3_rx_rst.value = 0
-        self.dut.sfp3_tx_rst.value = 0
 
 
 @cocotb.test()
