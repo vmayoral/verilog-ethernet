@@ -1,4 +1,4 @@
-# XDC constraints for the Xilinx ZCU102 board
+# XDC constraints for the AMD KR260 board
 # part: xczu9eg-ffvb1156-2-e
 
 # General configuration
