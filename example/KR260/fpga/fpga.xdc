@@ -1,5 +1,5 @@
 # XDC constraints for the AMD KR260 board
-# part: xczu9eg-ffvb1156-2-e
+# part: XCK26-SFVC784-2LV-C/I
 
 # General configuration
 set_property BITSTREAM.GENERAL.COMPRESS true           [current_design]
@@ -14,7 +14,7 @@ set_property BITSTREAM.GENERAL.COMPRESS true           [current_design]
 # transmission over the physical medium and vice versa. The SERDES components 
 # require a precise clock signal to ensure accurate timing of the transmitted 
 # and received data.
-
+#
 # 125 MHz clock, coming from U87
 set_property -dict {LOC C47  IOSTANDARD LVDS_25} [get_ports clk_125mhz_p]
 set_property -dict {LOC C48  IOSTANDARD LVDS_25} [get_ports clk_125mhz_n]
