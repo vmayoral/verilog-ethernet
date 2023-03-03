@@ -44,7 +44,9 @@
 				"ms-python.vscode-pylance",
 				"ms-vscode.cmake-tools",
 				"leafvmaple.verilog",
-				"mshr-h.VerilogHDL"
+				"mshr-h.VerilogHDL",
+				"GitHub.copilot"
+				// "BenjaminBenais.copilot-theme"
 			]
 		}
 	},
