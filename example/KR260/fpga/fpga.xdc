@@ -114,7 +114,8 @@ set_property -dict {PACKAGE_PIN R3  } [get_ports sfp0_tx_n] ;# GTH_DP2_M2C_N, so
 
 set_property -dict {PACKAGE_PIN Y6 IOSTANDARD LVDS_25} [get_ports clk_125mhz_p] ;# GTH_REFCLK0_C2M_P via U90, SOM240_2 C3
 set_property -dict {PACKAGE_PIN Y5 IOSTANDARD LVDS_25} [get_ports clk_125mhz_n] ;# GTH_REFCLK0_C2M_N via U90, SOM240_2 C4
-set_property -dict {PACKAGE_PIN Y10  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports sfp0_tx_disable_b]  ;# HDB19, SOM240_2_A47
+# set_property -dict {PACKAGE_PIN Y10  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports sfp0_tx_disable_b]  ;# HDB19, SOM240_2_A47
+set_property -dict {PACKAGE_PIN Y10 } [get_ports sfp0_tx_disable_b]  ;# HDB19, SOM240_2_A47
 
 # 156.25 MHz MGT reference clock
 create_clock -period 6.400 -name sfp_mgt_refclk_0 [get_ports sfp_mgt_refclk_0_p]
