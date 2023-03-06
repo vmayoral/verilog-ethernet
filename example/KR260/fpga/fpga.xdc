@@ -28,7 +28,7 @@ set_property BITSTREAM.GENERAL.COMPRESS true           [current_design]
 # GTH pins, connected to the PL
 set_property -dict {PACKAGE_PIN Y6 IOSTANDARD LVDS_25} [get_ports clk_125mhz_p] ;# GTH_REFCLK0_C2M_P via U90, SOM240_2 C3
 set_property -dict {PACKAGE_PIN Y5 IOSTANDARD LVDS_25} [get_ports clk_125mhz_n] ;# GTH_REFCLK0_C2M_N via U90, SOM240_2 C4
-create_clock -period 6.400 -name clk_125mhz_p [get_ports clk_125mhz_p]
+create_clock -period 6.400 -name clk_125mhz [get_ports clk_125mhz_p]
 
 # Option 3: use the 25 MHz clock outputs to the PL from U91
 # and feed that into a PLL to convert it to 125 MHz
