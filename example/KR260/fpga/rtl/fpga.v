@@ -81,7 +81,7 @@ module fpga (
     // output wire       sfp3_tx_n,
     input  wire       sfp_mgt_refclk_0_p,
     input  wire       sfp_mgt_refclk_0_n,
-    output wire       sfp0_tx_disable_b,
+    output wire       sfp0_tx_disable_b
     // output wire       sfp1_tx_disable_b,
     // output wire       sfp2_tx_disable_b,
     // output wire       sfp3_tx_disable_b
@@ -531,7 +531,7 @@ core_inst (
     .sfp0_rx_clk(sfp0_rx_clk_int),
     .sfp0_rx_rst(sfp0_rx_rst_int),
     .sfp0_rxd(sfp0_rxd_int),
-    .sfp0_rxc(sfp0_rxc_int),
+    .sfp0_rxc(sfp0_rxc_int)
     // .sfp1_tx_clk(sfp1_tx_clk_int),
     // .sfp1_tx_rst(sfp1_tx_rst_int),
     // .sfp1_txd(sfp1_txd_int),

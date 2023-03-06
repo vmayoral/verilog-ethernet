@@ -70,7 +70,7 @@ module fpga_core
     input  wire        sfp0_rx_clk,
     input  wire        sfp0_rx_rst,
     input  wire [63:0] sfp0_rxd,
-    input  wire [7:0]  sfp0_rxc,
+    input  wire [7:0]  sfp0_rxc
     // input  wire        sfp1_tx_clk,
     // input  wire        sfp1_tx_rst,
     // output wire [63:0] sfp1_txd,
