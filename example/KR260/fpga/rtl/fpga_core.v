@@ -1,6 +1,7 @@
 /*
 
 Copyright (c) 2020-2021 Alex Forencich
+Copyright (c) 2023 Víctor Mayoral Vilches
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -51,13 +52,13 @@ module fpga_core
     // input  wire [7:0]  sw,
     output wire [7:0]  led,
 
-    /*
-     * UART: 115200 bps, 8N1
-     */
-    input  wire        uart_rxd,
-    output wire        uart_txd,
-    input  wire        uart_rts,
-    output wire        uart_cts,
+    // /*
+    //  * UART: 115200 bps, 8N1
+    //  */
+    // input  wire        uart_rxd,
+    // output wire        uart_txd,
+    // input  wire        uart_rts,
+    // output wire        uart_cts,
 
     /*
      * Ethernet: SFP+
@@ -70,30 +71,30 @@ module fpga_core
     input  wire        sfp0_rx_rst,
     input  wire [63:0] sfp0_rxd,
     input  wire [7:0]  sfp0_rxc,
-    input  wire        sfp1_tx_clk,
-    input  wire        sfp1_tx_rst,
-    output wire [63:0] sfp1_txd,
-    output wire [7:0]  sfp1_txc,
-    input  wire        sfp1_rx_clk,
-    input  wire        sfp1_rx_rst,
-    input  wire [63:0] sfp1_rxd,
-    input  wire [7:0]  sfp1_rxc,
-    input  wire        sfp2_tx_clk,
-    input  wire        sfp2_tx_rst,
-    output wire [63:0] sfp2_txd,
-    output wire [7:0]  sfp2_txc,
-    input  wire        sfp2_rx_clk,
-    input  wire        sfp2_rx_rst,
-    input  wire [63:0] sfp2_rxd,
-    input  wire [7:0]  sfp2_rxc,
-    input  wire        sfp3_tx_clk,
-    input  wire        sfp3_tx_rst,
-    output wire [63:0] sfp3_txd,
-    output wire [7:0]  sfp3_txc,
-    input  wire        sfp3_rx_clk,
-    input  wire        sfp3_rx_rst,
-    input  wire [63:0] sfp3_rxd,
-    input  wire [7:0]  sfp3_rxc
+    // input  wire        sfp1_tx_clk,
+    // input  wire        sfp1_tx_rst,
+    // output wire [63:0] sfp1_txd,
+    // output wire [7:0]  sfp1_txc,
+    // input  wire        sfp1_rx_clk,
+    // input  wire        sfp1_rx_rst,
+    // input  wire [63:0] sfp1_rxd,
+    // input  wire [7:0]  sfp1_rxc,
+    // input  wire        sfp2_tx_clk,
+    // input  wire        sfp2_tx_rst,
+    // output wire [63:0] sfp2_txd,
+    // output wire [7:0]  sfp2_txc,
+    // input  wire        sfp2_rx_clk,
+    // input  wire        sfp2_rx_rst,
+    // input  wire [63:0] sfp2_rxd,
+    // input  wire [7:0]  sfp2_rxc,
+    // input  wire        sfp3_tx_clk,
+    // input  wire        sfp3_tx_rst,
+    // output wire [63:0] sfp3_txd,
+    // output wire [7:0]  sfp3_txc,
+    // input  wire        sfp3_rx_clk,
+    // input  wire        sfp3_rx_rst,
+    // input  wire [63:0] sfp3_rxd,
+    // input  wire [7:0]  sfp3_rxc
 );
 
 // AXI between MAC and Ethernet modules
@@ -332,12 +333,12 @@ end
 
 assign led = led_reg;
 
-assign sfp1_txd = 64'h0707070707070707;
-assign sfp1_txc = 8'hff;
-assign sfp2_txd = 64'h0707070707070707;
-assign sfp2_txc = 8'hff;
-assign sfp3_txd = 64'h0707070707070707;
-assign sfp3_txc = 8'hff;
+// assign sfp1_txd = 64'h0707070707070707;
+// assign sfp1_txc = 8'hff;
+// assign sfp2_txd = 64'h0707070707070707;
+// assign sfp2_txc = 8'hff;
+// assign sfp3_txd = 64'h0707070707070707;
+// assign sfp3_txc = 8'hff;
 
 eth_mac_10g_fifo #(
     .ENABLE_PADDING(1),

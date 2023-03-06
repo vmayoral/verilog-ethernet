@@ -1,6 +1,7 @@
 /*
 
 Copyright (c) 2020-2021 Alex Forencich
+Copyright (c) 2023 Víctor Mayoral Vilches
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -51,13 +52,13 @@ module fpga (
     // input  wire [7:0] sw,
     output wire [7:0] led,
 
-    /*
-     * UART: 115200 bps, 8N1
-     */
-    input  wire       uart_rxd,
-    output wire       uart_txd,
-    input  wire       uart_rts,
-    output wire       uart_cts,
+    // /*
+    //  * UART: 115200 bps, 8N1
+    //  */
+    // input  wire       uart_rxd,
+    // output wire       uart_txd,
+    // input  wire       uart_rts,
+    // output wire       uart_cts,
 
     /*
      * Ethernet: SFP+
@@ -66,24 +67,24 @@ module fpga (
     input  wire       sfp0_rx_n,
     output wire       sfp0_tx_p,
     output wire       sfp0_tx_n,
-    input  wire       sfp1_rx_p,
-    input  wire       sfp1_rx_n,
-    output wire       sfp1_tx_p,
-    output wire       sfp1_tx_n,
-    input  wire       sfp2_rx_p,
-    input  wire       sfp2_rx_n,
-    output wire       sfp2_tx_p,
-    output wire       sfp2_tx_n,
-    input  wire       sfp3_rx_p,
-    input  wire       sfp3_rx_n,
-    output wire       sfp3_tx_p,
-    output wire       sfp3_tx_n,
+    // input  wire       sfp1_rx_p,
+    // input  wire       sfp1_rx_n,
+    // output wire       sfp1_tx_p,
+    // output wire       sfp1_tx_n,
+    // input  wire       sfp2_rx_p,
+    // input  wire       sfp2_rx_n,
+    // output wire       sfp2_tx_p,
+    // output wire       sfp2_tx_n,
+    // input  wire       sfp3_rx_p,
+    // input  wire       sfp3_rx_n,
+    // output wire       sfp3_tx_p,
+    // output wire       sfp3_tx_n,
     input  wire       sfp_mgt_refclk_0_p,
     input  wire       sfp_mgt_refclk_0_n,
     output wire       sfp0_tx_disable_b,
-    output wire       sfp1_tx_disable_b,
-    output wire       sfp2_tx_disable_b,
-    output wire       sfp3_tx_disable_b
+    // output wire       sfp1_tx_disable_b,
+    // output wire       sfp2_tx_disable_b,
+    // output wire       sfp3_tx_disable_b
 );
 
 // Clock and reset
@@ -230,24 +231,24 @@ sync_reset_125mhz_inst (
 //         })
 // );
 
-wire uart_rxd_int;
-wire uart_rts_int;
+// wire uart_rxd_int;
+// wire uart_rts_int;
 
-sync_signal #(
-    .WIDTH(2),
-    .N(2)
-)
-sync_signal_inst (
-    .clk(clk_156mhz_int),
-    .in({uart_rxd, uart_rts}),
-    .out({uart_rxd_int, uart_rts_int})
-);
+// sync_signal #(
+//     .WIDTH(2),
+//     .N(2)
+// )
+// sync_signal_inst (
+//     .clk(clk_156mhz_int),
+//     .in({uart_rxd, uart_rts}),
+//     .out({uart_rxd_int, uart_rts_int})
+// );
 
 // XGMII 10G PHY
 assign sfp0_tx_disable_b = 1'b1;
-assign sfp1_tx_disable_b = 1'b1;
-assign sfp2_tx_disable_b = 1'b1;
-assign sfp3_tx_disable_b = 1'b1;
+// assign sfp1_tx_disable_b = 1'b1;
+// assign sfp2_tx_disable_b = 1'b1;
+// assign sfp3_tx_disable_b = 1'b1;
 
 wire        sfp0_tx_clk_int;
 wire        sfp0_tx_rst_int;
@@ -258,40 +259,40 @@ wire        sfp0_rx_rst_int;
 wire [63:0] sfp0_rxd_int;
 wire [7:0]  sfp0_rxc_int;
 
-wire        sfp1_tx_clk_int;
-wire        sfp1_tx_rst_int;
-wire [63:0] sfp1_txd_int;
-wire [7:0]  sfp1_txc_int;
-wire        sfp1_rx_clk_int;
-wire        sfp1_rx_rst_int;
-wire [63:0] sfp1_rxd_int;
-wire [7:0]  sfp1_rxc_int;
+// wire        sfp1_tx_clk_int;
+// wire        sfp1_tx_rst_int;
+// wire [63:0] sfp1_txd_int;
+// wire [7:0]  sfp1_txc_int;
+// wire        sfp1_rx_clk_int;
+// wire        sfp1_rx_rst_int;
+// wire [63:0] sfp1_rxd_int;
+// wire [7:0]  sfp1_rxc_int;
 
-wire        sfp2_tx_clk_int;
-wire        sfp2_tx_rst_int;
-wire [63:0] sfp2_txd_int;
-wire [7:0]  sfp2_txc_int;
-wire        sfp2_rx_clk_int;
-wire        sfp2_rx_rst_int;
-wire [63:0] sfp2_rxd_int;
-wire [7:0]  sfp2_rxc_int;
+// wire        sfp2_tx_clk_int;
+// wire        sfp2_tx_rst_int;
+// wire [63:0] sfp2_txd_int;
+// wire [7:0]  sfp2_txc_int;
+// wire        sfp2_rx_clk_int;
+// wire        sfp2_rx_rst_int;
+// wire [63:0] sfp2_rxd_int;
+// wire [7:0]  sfp2_rxc_int;
 
-wire        sfp3_tx_clk_int;
-wire        sfp3_tx_rst_int;
-wire [63:0] sfp3_txd_int;
-wire [7:0]  sfp3_txc_int;
-wire        sfp3_rx_clk_int;
-wire        sfp3_rx_rst_int;
-wire [63:0] sfp3_rxd_int;
-wire [7:0]  sfp3_rxc_int;
+// wire        sfp3_tx_clk_int;
+// wire        sfp3_tx_rst_int;
+// wire [63:0] sfp3_txd_int;
+// wire [7:0]  sfp3_txc_int;
+// wire        sfp3_rx_clk_int;
+// wire        sfp3_rx_rst_int;
+// wire [63:0] sfp3_rxd_int;
+// wire [7:0]  sfp3_rxc_int;
 
 assign clk_156mhz_int = sfp0_tx_clk_int;
 assign rst_156mhz_int = sfp0_tx_rst_int;
 
 wire sfp0_rx_block_lock;
-wire sfp1_rx_block_lock;
-wire sfp2_rx_block_lock;
-wire sfp3_rx_block_lock;
+// wire sfp1_rx_block_lock;
+// wire sfp2_rx_block_lock;
+// wire sfp3_rx_block_lock;
 
 wire sfp_mgt_refclk_0;
 
@@ -354,146 +355,146 @@ sfp0_phy_inst (
     .phy_rx_prbs31_enable()
 );
 
-eth_xcvr_phy_wrapper #(
-    .HAS_COMMON(0)
-)
-sfp1_phy_inst (
-    .xcvr_ctrl_clk(clk_125mhz_int),
-    .xcvr_ctrl_rst(rst_125mhz_int),
+// eth_xcvr_phy_wrapper #(
+//     .HAS_COMMON(0)
+// )
+// sfp1_phy_inst (
+//     .xcvr_ctrl_clk(clk_125mhz_int),
+//     .xcvr_ctrl_rst(rst_125mhz_int),
 
-    // Common
-    .xcvr_gtpowergood_out(),
+//     // Common
+//     .xcvr_gtpowergood_out(),
 
-    // PLL out
-    .xcvr_gtrefclk00_in(1'b0),
-    .xcvr_qpll0lock_out(),
-    .xcvr_qpll0outclk_out(),
-    .xcvr_qpll0outrefclk_out(),
+//     // PLL out
+//     .xcvr_gtrefclk00_in(1'b0),
+//     .xcvr_qpll0lock_out(),
+//     .xcvr_qpll0outclk_out(),
+//     .xcvr_qpll0outrefclk_out(),
 
-    // PLL in
-    .xcvr_qpll0lock_in(sfp_qpll0lock),
-    .xcvr_qpll0reset_out(),
-    .xcvr_qpll0clk_in(sfp_qpll0outclk),
-    .xcvr_qpll0refclk_in(sfp_qpll0outrefclk),
+//     // PLL in
+//     .xcvr_qpll0lock_in(sfp_qpll0lock),
+//     .xcvr_qpll0reset_out(),
+//     .xcvr_qpll0clk_in(sfp_qpll0outclk),
+//     .xcvr_qpll0refclk_in(sfp_qpll0outrefclk),
 
-    // Serial data
-    .xcvr_txp(sfp1_tx_p),
-    .xcvr_txn(sfp1_tx_n),
-    .xcvr_rxp(sfp1_rx_p),
-    .xcvr_rxn(sfp1_rx_n),
+//     // Serial data
+//     .xcvr_txp(sfp1_tx_p),
+//     .xcvr_txn(sfp1_tx_n),
+//     .xcvr_rxp(sfp1_rx_p),
+//     .xcvr_rxn(sfp1_rx_n),
 
-    // PHY connections
-    .phy_tx_clk(sfp1_tx_clk_int),
-    .phy_tx_rst(sfp1_tx_rst_int),
-    .phy_xgmii_txd(sfp1_txd_int),
-    .phy_xgmii_txc(sfp1_txc_int),
-    .phy_rx_clk(sfp1_rx_clk_int),
-    .phy_rx_rst(sfp1_rx_rst_int),
-    .phy_xgmii_rxd(sfp1_rxd_int),
-    .phy_xgmii_rxc(sfp1_rxc_int),
-    .phy_tx_bad_block(),
-    .phy_rx_error_count(),
-    .phy_rx_bad_block(),
-    .phy_rx_sequence_error(),
-    .phy_rx_block_lock(sfp1_rx_block_lock),
-    .phy_rx_high_ber(),
-    .phy_tx_prbs31_enable(),
-    .phy_rx_prbs31_enable()
-);
+//     // PHY connections
+//     .phy_tx_clk(sfp1_tx_clk_int),
+//     .phy_tx_rst(sfp1_tx_rst_int),
+//     .phy_xgmii_txd(sfp1_txd_int),
+//     .phy_xgmii_txc(sfp1_txc_int),
+//     .phy_rx_clk(sfp1_rx_clk_int),
+//     .phy_rx_rst(sfp1_rx_rst_int),
+//     .phy_xgmii_rxd(sfp1_rxd_int),
+//     .phy_xgmii_rxc(sfp1_rxc_int),
+//     .phy_tx_bad_block(),
+//     .phy_rx_error_count(),
+//     .phy_rx_bad_block(),
+//     .phy_rx_sequence_error(),
+//     .phy_rx_block_lock(sfp1_rx_block_lock),
+//     .phy_rx_high_ber(),
+//     .phy_tx_prbs31_enable(),
+//     .phy_rx_prbs31_enable()
+// );
 
-eth_xcvr_phy_wrapper #(
-    .HAS_COMMON(0)
-)
-sfp2_phy_inst (
-    .xcvr_ctrl_clk(clk_125mhz_int),
-    .xcvr_ctrl_rst(rst_125mhz_int),
+// eth_xcvr_phy_wrapper #(
+//     .HAS_COMMON(0)
+// )
+// sfp2_phy_inst (
+//     .xcvr_ctrl_clk(clk_125mhz_int),
+//     .xcvr_ctrl_rst(rst_125mhz_int),
 
-    // Common
-    .xcvr_gtpowergood_out(),
+//     // Common
+//     .xcvr_gtpowergood_out(),
 
-    // PLL out
-    .xcvr_gtrefclk00_in(1'b0),
-    .xcvr_qpll0lock_out(),
-    .xcvr_qpll0outclk_out(),
-    .xcvr_qpll0outrefclk_out(),
+//     // PLL out
+//     .xcvr_gtrefclk00_in(1'b0),
+//     .xcvr_qpll0lock_out(),
+//     .xcvr_qpll0outclk_out(),
+//     .xcvr_qpll0outrefclk_out(),
 
-    // PLL in
-    .xcvr_qpll0lock_in(sfp_qpll0lock),
-    .xcvr_qpll0reset_out(),
-    .xcvr_qpll0clk_in(sfp_qpll0outclk),
-    .xcvr_qpll0refclk_in(sfp_qpll0outrefclk),
+//     // PLL in
+//     .xcvr_qpll0lock_in(sfp_qpll0lock),
+//     .xcvr_qpll0reset_out(),
+//     .xcvr_qpll0clk_in(sfp_qpll0outclk),
+//     .xcvr_qpll0refclk_in(sfp_qpll0outrefclk),
 
-    // Serial data
-    .xcvr_txp(sfp2_tx_p),
-    .xcvr_txn(sfp2_tx_n),
-    .xcvr_rxp(sfp2_rx_p),
-    .xcvr_rxn(sfp2_rx_n),
+//     // Serial data
+//     .xcvr_txp(sfp2_tx_p),
+//     .xcvr_txn(sfp2_tx_n),
+//     .xcvr_rxp(sfp2_rx_p),
+//     .xcvr_rxn(sfp2_rx_n),
 
-    // PHY connections
-    .phy_tx_clk(sfp2_tx_clk_int),
-    .phy_tx_rst(sfp2_tx_rst_int),
-    .phy_xgmii_txd(sfp2_txd_int),
-    .phy_xgmii_txc(sfp2_txc_int),
-    .phy_rx_clk(sfp2_rx_clk_int),
-    .phy_rx_rst(sfp2_rx_rst_int),
-    .phy_xgmii_rxd(sfp2_rxd_int),
-    .phy_xgmii_rxc(sfp2_rxc_int),
-    .phy_tx_bad_block(),
-    .phy_rx_error_count(),
-    .phy_rx_bad_block(),
-    .phy_rx_sequence_error(),
-    .phy_rx_block_lock(sfp2_rx_block_lock),
-    .phy_rx_high_ber(),
-    .phy_tx_prbs31_enable(),
-    .phy_rx_prbs31_enable()
-);
+//     // PHY connections
+//     .phy_tx_clk(sfp2_tx_clk_int),
+//     .phy_tx_rst(sfp2_tx_rst_int),
+//     .phy_xgmii_txd(sfp2_txd_int),
+//     .phy_xgmii_txc(sfp2_txc_int),
+//     .phy_rx_clk(sfp2_rx_clk_int),
+//     .phy_rx_rst(sfp2_rx_rst_int),
+//     .phy_xgmii_rxd(sfp2_rxd_int),
+//     .phy_xgmii_rxc(sfp2_rxc_int),
+//     .phy_tx_bad_block(),
+//     .phy_rx_error_count(),
+//     .phy_rx_bad_block(),
+//     .phy_rx_sequence_error(),
+//     .phy_rx_block_lock(sfp2_rx_block_lock),
+//     .phy_rx_high_ber(),
+//     .phy_tx_prbs31_enable(),
+//     .phy_rx_prbs31_enable()
+// );
 
-eth_xcvr_phy_wrapper #(
-    .HAS_COMMON(0)
-)
-sfp3_phy_inst (
-    .xcvr_ctrl_clk(clk_125mhz_int),
-    .xcvr_ctrl_rst(rst_125mhz_int),
+// eth_xcvr_phy_wrapper #(
+//     .HAS_COMMON(0)
+// )
+// sfp3_phy_inst (
+//     .xcvr_ctrl_clk(clk_125mhz_int),
+//     .xcvr_ctrl_rst(rst_125mhz_int),
 
-    // Common
-    .xcvr_gtpowergood_out(),
+//     // Common
+//     .xcvr_gtpowergood_out(),
 
-    // PLL out
-    .xcvr_gtrefclk00_in(1'b0),
-    .xcvr_qpll0lock_out(),
-    .xcvr_qpll0outclk_out(),
-    .xcvr_qpll0outrefclk_out(),
+//     // PLL out
+//     .xcvr_gtrefclk00_in(1'b0),
+//     .xcvr_qpll0lock_out(),
+//     .xcvr_qpll0outclk_out(),
+//     .xcvr_qpll0outrefclk_out(),
 
-    // PLL in
-    .xcvr_qpll0lock_in(sfp_qpll0lock),
-    .xcvr_qpll0reset_out(),
-    .xcvr_qpll0clk_in(sfp_qpll0outclk),
-    .xcvr_qpll0refclk_in(sfp_qpll0outrefclk),
+//     // PLL in
+//     .xcvr_qpll0lock_in(sfp_qpll0lock),
+//     .xcvr_qpll0reset_out(),
+//     .xcvr_qpll0clk_in(sfp_qpll0outclk),
+//     .xcvr_qpll0refclk_in(sfp_qpll0outrefclk),
 
-    // Serial data
-    .xcvr_txp(sfp3_tx_p),
-    .xcvr_txn(sfp3_tx_n),
-    .xcvr_rxp(sfp3_rx_p),
-    .xcvr_rxn(sfp3_rx_n),
+//     // Serial data
+//     .xcvr_txp(sfp3_tx_p),
+//     .xcvr_txn(sfp3_tx_n),
+//     .xcvr_rxp(sfp3_rx_p),
+//     .xcvr_rxn(sfp3_rx_n),
 
-    // PHY connections
-    .phy_tx_clk(sfp3_tx_clk_int),
-    .phy_tx_rst(sfp3_tx_rst_int),
-    .phy_xgmii_txd(sfp3_txd_int),
-    .phy_xgmii_txc(sfp3_txc_int),
-    .phy_rx_clk(sfp3_rx_clk_int),
-    .phy_rx_rst(sfp3_rx_rst_int),
-    .phy_xgmii_rxd(sfp3_rxd_int),
-    .phy_xgmii_rxc(sfp3_rxc_int),
-    .phy_tx_bad_block(),
-    .phy_rx_error_count(),
-    .phy_rx_bad_block(),
-    .phy_rx_sequence_error(),
-    .phy_rx_block_lock(sfp3_rx_block_lock),
-    .phy_rx_high_ber(),
-    .phy_tx_prbs31_enable(),
-    .phy_rx_prbs31_enable()
-);
+//     // PHY connections
+//     .phy_tx_clk(sfp3_tx_clk_int),
+//     .phy_tx_rst(sfp3_tx_rst_int),
+//     .phy_xgmii_txd(sfp3_txd_int),
+//     .phy_xgmii_txc(sfp3_txc_int),
+//     .phy_rx_clk(sfp3_rx_clk_int),
+//     .phy_rx_rst(sfp3_rx_rst_int),
+//     .phy_xgmii_rxd(sfp3_rxd_int),
+//     .phy_xgmii_rxc(sfp3_rxc_int),
+//     .phy_tx_bad_block(),
+//     .phy_rx_error_count(),
+//     .phy_rx_bad_block(),
+//     .phy_rx_sequence_error(),
+//     .phy_rx_block_lock(sfp3_rx_block_lock),
+//     .phy_rx_high_ber(),
+//     .phy_tx_prbs31_enable(),
+//     .phy_rx_prbs31_enable()
+// );
 
 fpga_core
 core_inst (
@@ -516,10 +517,10 @@ core_inst (
     /*
      * UART: 115200 bps, 8N1
      */
-    .uart_rxd(uart_rxd_int),
-    .uart_txd(uart_txd),
-    .uart_rts(uart_rts_int),
-    .uart_cts(uart_cts),
+    // .uart_rxd(uart_rxd_int),
+    // .uart_txd(uart_txd),
+    // .uart_rts(uart_rts_int),
+    // .uart_cts(uart_cts),
     /*
      * Ethernet: SFP+
      */
@@ -531,30 +532,30 @@ core_inst (
     .sfp0_rx_rst(sfp0_rx_rst_int),
     .sfp0_rxd(sfp0_rxd_int),
     .sfp0_rxc(sfp0_rxc_int),
-    .sfp1_tx_clk(sfp1_tx_clk_int),
-    .sfp1_tx_rst(sfp1_tx_rst_int),
-    .sfp1_txd(sfp1_txd_int),
-    .sfp1_txc(sfp1_txc_int),
-    .sfp1_rx_clk(sfp1_rx_clk_int),
-    .sfp1_rx_rst(sfp1_rx_rst_int),
-    .sfp1_rxd(sfp1_rxd_int),
-    .sfp1_rxc(sfp1_rxc_int),
-    .sfp2_tx_clk(sfp2_tx_clk_int),
-    .sfp2_tx_rst(sfp2_tx_rst_int),
-    .sfp2_txd(sfp2_txd_int),
-    .sfp2_txc(sfp2_txc_int),
-    .sfp2_rx_clk(sfp2_rx_clk_int),
-    .sfp2_rx_rst(sfp2_rx_rst_int),
-    .sfp2_rxd(sfp2_rxd_int),
-    .sfp2_rxc(sfp2_rxc_int),
-    .sfp3_tx_clk(sfp3_tx_clk_int),
-    .sfp3_tx_rst(sfp3_tx_rst_int),
-    .sfp3_txd(sfp3_txd_int),
-    .sfp3_txc(sfp3_txc_int),
-    .sfp3_rx_clk(sfp3_rx_clk_int),
-    .sfp3_rx_rst(sfp3_rx_rst_int),
-    .sfp3_rxd(sfp3_rxd_int),
-    .sfp3_rxc(sfp3_rxc_int)
+    // .sfp1_tx_clk(sfp1_tx_clk_int),
+    // .sfp1_tx_rst(sfp1_tx_rst_int),
+    // .sfp1_txd(sfp1_txd_int),
+    // .sfp1_txc(sfp1_txc_int),
+    // .sfp1_rx_clk(sfp1_rx_clk_int),
+    // .sfp1_rx_rst(sfp1_rx_rst_int),
+    // .sfp1_rxd(sfp1_rxd_int),
+    // .sfp1_rxc(sfp1_rxc_int),
+    // .sfp2_tx_clk(sfp2_tx_clk_int),
+    // .sfp2_tx_rst(sfp2_tx_rst_int),
+    // .sfp2_txd(sfp2_txd_int),
+    // .sfp2_txc(sfp2_txc_int),
+    // .sfp2_rx_clk(sfp2_rx_clk_int),
+    // .sfp2_rx_rst(sfp2_rx_rst_int),
+    // .sfp2_rxd(sfp2_rxd_int),
+    // .sfp2_rxc(sfp2_rxc_int),
+    // .sfp3_tx_clk(sfp3_tx_clk_int),
+    // .sfp3_tx_rst(sfp3_tx_rst_int),
+    // .sfp3_txd(sfp3_txd_int),
+    // .sfp3_txc(sfp3_txc_int),
+    // .sfp3_rx_clk(sfp3_rx_clk_int),
+    // .sfp3_rx_rst(sfp3_rx_rst_int),
+    // .sfp3_rxd(sfp3_rxd_int),
+    // .sfp3_rxc(sfp3_rxc_int)
 );
 
 endmodule
