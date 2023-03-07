@@ -50,7 +50,7 @@ module fpga (
     // input  wire       btnr,
     // input  wire       btnc,
     // input  wire [7:0] sw,
-    output wire [7:0] led,
+    output wire [1:0] led,
 
     // /*
     //  * UART: 115200 bps, 8N1

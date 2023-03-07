@@ -50,7 +50,7 @@ module fpga_core
     // input  wire        btnr,
     // input  wire        btnc,
     // input  wire [7:0]  sw,
-    output wire [7:0]  led,
+    output wire [1:0]  led,
 
     // /*
     //  * UART: 115200 bps, 8N1
@@ -318,7 +318,7 @@ assign rx_fifo_udp_payload_axis_tuser = rx_udp_payload_axis_tuser;
 
 // Place first payload byte onto LEDs
 reg valid_last = 0;
-reg [7:0] led_reg = 0;
+reg [1:0] led_reg = 0;
 
 always @(posedge clk) begin
     if (rst) begin
