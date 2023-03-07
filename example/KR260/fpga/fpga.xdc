@@ -19,20 +19,36 @@ set_property BITSTREAM.GENERAL.COMPRESS true           [current_design]
 #
 
 # # Option 1: use the 125 MHz clock from the U87 chip
-# # GTR pins, connected to the PS
+# # GTR pins, connected to the PS, cannot use directly
 # set_property -dict {LOC C47  IOSTANDARD LVDS_25} [get_ports clk_125mhz_p]
 # set_property -dict {LOC C48  IOSTANDARD LVDS_25} [get_ports clk_125mhz_n]
 # create_clock -period 8.000 -name clk_125mhz [get_ports clk_125mhz_p]
 
-# Option 2: use the 156.25 MHz MGT reference clock
-# GTH pins, connected to the PL
-set_property -dict {LOC Y6 IOSTANDARD LVDS_25} [get_ports clk_125mhz_p] ;# GTH_REFCLK0_C2M_P via U90, SOM240_2 C3
-set_property -dict {LOC Y5 IOSTANDARD LVDS_25} [get_ports clk_125mhz_n] ;# GTH_REFCLK0_C2M_N via U90, SOM240_2 C4
-create_clock -period 6.400 -name clk_125mhz [get_ports clk_125mhz_p]
+# # Option 2: use the 156.25 MHz MGT reference clock
+# # GTH pins, connected to the PL, however:
+# # 
+# # The MGT (Multi-Gigabit Transceiver) reference clock inputs and GTH (Gigabit Transceiver) 
+# # pins are designed for different types of clock signals, and connecting them together can 
+# # result in damage to the circuitry or a non-functioning design.
+# # 
+# # Connecting the MGT reference clock inputs to GTH pins can result in damage to the 
+# # circuitry or a non-functioning design because the MGT reference clock signal has different 
+# # voltage and timing requirements than the GTH system clock. The MGT reference clock signal 
+# # requires a dedicated input buffer, such as the IBUFDS_GTE2 or IBUFDS_GTH, to properly 
+# # receive the clock signal and perform the necessary signal conditioning before it can be 
+# # used by the MGT transceiver. The GTH pins, on the other hand, require a specific input 
+# # buffer, such as the IBUFDS_GTE2 or IBUFDS_GTH, to properly receive the system clock signal 
+# # and perform the necessary signal conditioning before it can be used for data transfer.
+# # 
+# set_property -dict {LOC Y6 IOSTANDARD LVDS_25} [get_ports clk_125mhz_p] ;# GTH_REFCLK0_C2M_P via U90, SOM240_2 C3
+# set_property -dict {LOC Y5 IOSTANDARD LVDS_25} [get_ports clk_125mhz_n] ;# GTH_REFCLK0_C2M_N via U90, SOM240_2 C4
+# create_clock -period 6.400 -name clk_125mhz [get_ports clk_125mhz_p]
 
 # Option 3: use the 25 MHz clock outputs to the PL from U91
 # and feed that into a PLL to convert it to 125 MHz
-# TODO
+set_property -dict {LOC C3 IOSTANDARD LVCMOS18} [get_ports clk_25mhz_ref] ;# HPA_CLK0P_CLK, HPA_CLK0_P, via U91, SOM240_1 A6
+create_clock -period 40.000 -name clk_25mhz [get_ports clk_25mhz_ref]
+
 
 # LEDs
 set_property -dict {LOC F8 IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports {led[0]}]  ;# HPA14P, som240_1_d13

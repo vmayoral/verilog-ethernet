@@ -37,9 +37,14 @@ module fpga (
      * Clock: 125MHz LVDS
      * Reset: Push button, active low
      */
-    input  wire       clk_125mhz_p,
-    input  wire       clk_125mhz_n,
+    // input  wire       clk_125mhz_p,
+    // input  wire       clk_125mhz_n,
     input  wire       reset,
+
+    /*
+     * Clock: 25 MHz LVCMOS18
+     */
+     input wire clk_25mhz_ref,
 
     /*
      * GPIO
@@ -74,8 +79,9 @@ module fpga (
 
 // Clock and reset
 
-wire clk_125mhz_ibufg;
-wire clk_125mhz_bufg;
+// wire clk_125mhz_ibufg;
+// wire clk_125mhz_bufg;
+wire clk_25mhz_bufg;
 
 // Internal 125 MHz clock
 wire clk_125mhz_mmcm_out;
@@ -90,24 +96,110 @@ wire mmcm_rst = reset;
 wire mmcm_locked;
 wire mmcm_clkfb;
 
-IBUFGDS #(
-   .DIFF_TERM("FALSE"),
-   .IBUF_LOW_PWR("FALSE")   
-)
-clk_125mhz_ibufg_inst (
-   .O   (clk_125mhz_ibufg),
-   .I   (clk_125mhz_p),
-   .IB  (clk_125mhz_n) 
+
+// // IBUFGDS stands for Input Buffer Differential Signaling. 
+// // It is a primitive module in Verilog that is used to buffer 
+// // an input signal and convert it from a single-ended signal 
+// // to a differential signal.
+// // 
+// // See https://docs.xilinx.com/r/2022.1-English/ug974-vivado-ultrascale-libraries/IBUFDS
+// IBUFGDS #(
+//    .DIFF_TERM("FALSE"),
+//    .IBUF_LOW_PWR("FALSE")   
+// )
+// clk_125mhz_ibufg_inst (
+//    .O   (clk_125mhz_ibufg),
+//    .I   (clk_125mhz_p),
+//    .IB  (clk_125mhz_n) 
+// );
+
+// BUFG stands for "buffer gate." The BUFG primitive is used to create a 
+// buffer gate, which is a digital circuit component that is used to 
+// amplify and/or isolate a signal.
+// 
+// Using a BUFG gate helps to ensure that the clock signal is distributed 
+// properly throughout the system and reaches all the necessary components 
+// with minimal delay.
+// 
+// https://docs.xilinx.com/r/2022.1-English/ug974-vivado-ultrascale-libraries/BUFG
+// BUFG
+// clk_125mhz_bufg_in_inst (
+//     .I(clk_125mhz_ibufg),
+//     .O(clk_125mhz_bufg)
+// );
+BUFG
+clk_25mhz_bufg_in_inst (
+    .I(clk_25mhz_ref),
+    .O(clk_25mhz_bufg)
 );
 
-BUFG
-clk_125mhz_bufg_in_inst (
-    .I(clk_125mhz_ibufg),
-    .O(clk_125mhz_bufg)
-);
+
+// Base Mixed Mode Clock Manager (MMCM)
+// 
+// used to implement a Phase-Locked Loop (PLL) with Multiplier/Multiplier 
+// and Phase Shift (MMCM) functionality
+// see https://docs.xilinx.com/r/2022.1-English/ug974-vivado-ultrascale-libraries/MMCME4_BASE
+
+// // MMCM instance
+// // 125 MHz in, 125 MHz out
+// // PFD range: 10 MHz to 500 MHz
+// // VCO range: 800 MHz to 1600 MHz
+// // M = 8, D = 1 sets Fvco = 1000 MHz (in range)
+// // Divide by 8 to get output frequency of 125 MHz
+// MMCME4_BASE #(
+//     .BANDWIDTH("OPTIMIZED"),
+//     .CLKOUT0_DIVIDE_F(8),
+//     .CLKOUT0_DUTY_CYCLE(0.5),
+//     .CLKOUT0_PHASE(0),
+//     .CLKOUT1_DIVIDE(1),
+//     .CLKOUT1_DUTY_CYCLE(0.5),
+//     .CLKOUT1_PHASE(0),
+//     .CLKOUT2_DIVIDE(1),
+//     .CLKOUT2_DUTY_CYCLE(0.5),
+//     .CLKOUT2_PHASE(0),
+//     .CLKOUT3_DIVIDE(1),
+//     .CLKOUT3_DUTY_CYCLE(0.5),
+//     .CLKOUT3_PHASE(0),
+//     .CLKOUT4_DIVIDE(1),
+//     .CLKOUT4_DUTY_CYCLE(0.5),
+//     .CLKOUT4_PHASE(0),
+//     .CLKOUT5_DIVIDE(1),
+//     .CLKOUT5_DUTY_CYCLE(0.5),
+//     .CLKOUT5_PHASE(0),
+//     .CLKOUT6_DIVIDE(1),
+//     .CLKOUT6_DUTY_CYCLE(0.5),
+//     .CLKOUT6_PHASE(0),
+//     .CLKFBOUT_MULT_F(8),
+//     .CLKFBOUT_PHASE(0),
+//     .DIVCLK_DIVIDE(1),
+//     .REF_JITTER1(0.010),
+//     .CLKIN1_PERIOD(8.0),
+//     .STARTUP_WAIT("FALSE"),
+//     .CLKOUT4_CASCADE("FALSE")
+// )
+// clk_mmcm_inst (
+//     .CLKIN1(clk_125mhz_bufg),
+//     .CLKFBIN(mmcm_clkfb),
+//     .RST(mmcm_rst),
+//     .PWRDWN(1'b0),
+//     .CLKOUT0(clk_125mhz_mmcm_out),
+//     .CLKOUT0B(),
+//     .CLKOUT1(),
+//     .CLKOUT1B(),
+//     .CLKOUT2(),
+//     .CLKOUT2B(),
+//     .CLKOUT3(),
+//     .CLKOUT3B(),
+//     .CLKOUT4(),
+//     .CLKOUT5(),
+//     .CLKOUT6(),
+//     .CLKFBOUT(mmcm_clkfb),
+//     .CLKFBOUTB(),
+//     .LOCKED(mmcm_locked)
+// );
 
 // MMCM instance
-// 125 MHz in, 125 MHz out
+// 25 MHz in, 125 MHz out
 // PFD range: 10 MHz to 500 MHz
 // VCO range: 800 MHz to 1600 MHz
 // M = 8, D = 1 sets Fvco = 1000 MHz (in range)
@@ -135,16 +227,16 @@ MMCME4_BASE #(
     .CLKOUT6_DIVIDE(1),
     .CLKOUT6_DUTY_CYCLE(0.5),
     .CLKOUT6_PHASE(0),
-    .CLKFBOUT_MULT_F(8),
+    .CLKFBOUT_MULT_F(40),
     .CLKFBOUT_PHASE(0),
     .DIVCLK_DIVIDE(1),
     .REF_JITTER1(0.010),
-    .CLKIN1_PERIOD(8.0),
+    .CLKIN1_PERIOD(40.0),
     .STARTUP_WAIT("FALSE"),
     .CLKOUT4_CASCADE("FALSE")
 )
 clk_mmcm_inst (
-    .CLKIN1(clk_125mhz_bufg),
+    .CLKIN1(clk_25mhz_bufg),
     .CLKFBIN(mmcm_clkfb),
     .RST(mmcm_rst),
     .PWRDWN(1'b0),
@@ -254,6 +346,12 @@ wire sfp0_rx_block_lock;
 
 wire sfp_mgt_refclk_0;
 
+// Gigabit Transceiver Buffer
+// 
+// Differential input buffer designed to work with the GTE 
+// (Gigabit Transceiver) transceiver tiles
+// 
+// see https://docs.xilinx.com/r/2022.1-English/ug974-vivado-ultrascale-libraries/IBUFDS_GTE4
 IBUFDS_GTE4 ibufds_gte4_sfp_mgt_refclk_0_inst (
     .I     (sfp_mgt_refclk_0_p),
     .IB    (sfp_mgt_refclk_0_n),
