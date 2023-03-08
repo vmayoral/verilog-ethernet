@@ -1,6 +1,6 @@
 
 # FPGA settings
-FPGA_PART = xczu9eg-ffvb1156-2-e
+FPGA_PART = XCK26-SFVC784-2LV-C
 FPGA_TOP = fpga
 FPGA_ARCH = zynquplus
 
