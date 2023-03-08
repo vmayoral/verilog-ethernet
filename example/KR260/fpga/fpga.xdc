@@ -56,17 +56,19 @@ set_property -dict {LOC E8 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports {le
 set_false_path -to [get_ports {led[*]}]
 set_output_delay 0 [get_ports {led[*]}]
 
-# Reset button
-# PS_POR_L, note schematics hints C15 is PS_POR_B (Power-on Reset) signal
-# whereas the "Kria SOM Carrier Card Design Guide" says C15 is PS_POR_L.
-#
-# Signal is pulled up to 1.8V through a 4.70 KΩ resistor on the SOM, LVCMOS18
-# 
-# see https://docs.xilinx.com/r/en-US/ug1091-carrier-card-design/Sideband-Signals
-set_property -dict {LOC P16 IOSTANDARD LVCMOS18} [get_ports reset]  ;# som240_1_c15, PS_POR_B, PS_POR_L
+# # Reset button
+# # PS_POR_L, note schematics hints C15 is PS_POR_B (Power-on Reset) signal
+# # whereas the "Kria SOM Carrier Card Design Guide" says C15 is PS_POR_L.
+# #
+# # Signal is pulled up to 1.8V through a 4.70 KΩ resistor on the SOM, LVCMOS18
+# #
+# # NOTE: Connected to the PS, not accessible to the PL
+# # 
+# # see https://docs.xilinx.com/r/en-US/ug1091-carrier-card-design/Sideband-Signals
+# set_property -dict {LOC P16 IOSTANDARD LVCMOS18} [get_ports reset]  ;# som240_1_c15, PS_POR_B, PS_POR_L
 
-set_false_path -from [get_ports {reset}]
-set_input_delay 0 [get_ports {reset}]
+# set_false_path -from [get_ports {reset}]
+# set_input_delay 0 [get_ports {reset}]
 
 # No push buttons in KR260
 # FWEN is used for other features

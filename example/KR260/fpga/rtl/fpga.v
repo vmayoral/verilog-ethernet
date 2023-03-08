@@ -39,7 +39,7 @@ module fpga (
      */
     // input  wire       clk_125mhz_p,
     // input  wire       clk_125mhz_n,
-    input  wire       reset,
+    // input  wire       reset,
 
     /*
      * Clock: 25 MHz LVCMOS18
@@ -92,7 +92,7 @@ wire rst_125mhz_int;
 wire clk_156mhz_int;
 wire rst_156mhz_int;
 
-wire mmcm_rst = reset;
+// wire mmcm_rst = reset;
 wire mmcm_locked;
 wire mmcm_clkfb;
 
@@ -238,7 +238,8 @@ MMCME4_BASE #(
 clk_mmcm_inst (
     .CLKIN1(clk_25mhz_bufg),
     .CLKFBIN(mmcm_clkfb),
-    .RST(mmcm_rst),
+    // .RST(mmcm_rst),
+    .RST(1'b1),
     .PWRDWN(1'b0),
     .CLKOUT0(clk_125mhz_mmcm_out),
     .CLKOUT0B(),
