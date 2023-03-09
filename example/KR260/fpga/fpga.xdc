@@ -66,7 +66,7 @@ set_output_delay 0 [get_ports {led[*]}]
 # # 
 # # see https://docs.xilinx.com/r/en-US/ug1091-carrier-card-design/Sideband-Signals
 # set_property -dict {LOC P16 IOSTANDARD LVCMOS18} [get_ports reset]  ;# som240_1_c15, PS_POR_B, PS_POR_L
-
+#
 # set_false_path -from [get_ports {reset}]
 # set_input_delay 0 [get_ports {reset}]
 
@@ -85,13 +85,6 @@ set_output_delay 0 [get_ports {led[*]}]
 # No DIP switches in KR260
 #
 # set_property -dict {LOC AN14 IOSTANDARD LVCMOS33} [get_ports {sw[0]}]
-# set_property -dict {LOC AP14 IOSTANDARD LVCMOS33} [get_ports {sw[1]}]
-# set_property -dict {LOC AM14 IOSTANDARD LVCMOS33} [get_ports {sw[2]}]
-# set_property -dict {LOC AN13 IOSTANDARD LVCMOS33} [get_ports {sw[3]}]
-# set_property -dict {LOC AN12 IOSTANDARD LVCMOS33} [get_ports {sw[4]}]
-# set_property -dict {LOC AP12 IOSTANDARD LVCMOS33} [get_ports {sw[5]}]
-# set_property -dict {LOC AL13 IOSTANDARD LVCMOS33} [get_ports {sw[6]}]
-# set_property -dict {LOC AK13 IOSTANDARD LVCMOS33} [get_ports {sw[7]}]
 #
 # set_false_path -from [get_ports {sw[*]}]
 # set_input_delay 0 [get_ports {sw[*]}]
@@ -108,7 +101,7 @@ set_output_delay 0 [get_ports {led[*]}]
 # set_false_path -from [get_ports {uart_rxd uart_rts}]
 # set_input_delay 0 [get_ports {uart_rxd uart_rts}]
 
-# I2C interfaces
+# No PL-I2C interfaces
 #set_property -dict {LOC J10  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports i2c0_scl]
 #set_property -dict {LOC J11  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports i2c0_sda]
 #set_property -dict {LOC K20  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports i2c1_scl]

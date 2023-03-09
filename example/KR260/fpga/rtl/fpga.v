@@ -140,64 +140,6 @@ clk_25mhz_bufg_in_inst (
 // and Phase Shift (MMCM) functionality
 // see https://docs.xilinx.com/r/2022.1-English/ug974-vivado-ultrascale-libraries/MMCME4_BASE
 
-// // MMCM instance
-// // 125 MHz in, 125 MHz out
-// // PFD range: 10 MHz to 500 MHz
-// // VCO range: 800 MHz to 1600 MHz
-// // M = 8, D = 1 sets Fvco = 1000 MHz (in range)
-// // Divide by 8 to get output frequency of 125 MHz
-// MMCME4_BASE #(
-//     .BANDWIDTH("OPTIMIZED"),
-//     .CLKOUT0_DIVIDE_F(8),
-//     .CLKOUT0_DUTY_CYCLE(0.5),
-//     .CLKOUT0_PHASE(0),
-//     .CLKOUT1_DIVIDE(1),
-//     .CLKOUT1_DUTY_CYCLE(0.5),
-//     .CLKOUT1_PHASE(0),
-//     .CLKOUT2_DIVIDE(1),
-//     .CLKOUT2_DUTY_CYCLE(0.5),
-//     .CLKOUT2_PHASE(0),
-//     .CLKOUT3_DIVIDE(1),
-//     .CLKOUT3_DUTY_CYCLE(0.5),
-//     .CLKOUT3_PHASE(0),
-//     .CLKOUT4_DIVIDE(1),
-//     .CLKOUT4_DUTY_CYCLE(0.5),
-//     .CLKOUT4_PHASE(0),
-//     .CLKOUT5_DIVIDE(1),
-//     .CLKOUT5_DUTY_CYCLE(0.5),
-//     .CLKOUT5_PHASE(0),
-//     .CLKOUT6_DIVIDE(1),
-//     .CLKOUT6_DUTY_CYCLE(0.5),
-//     .CLKOUT6_PHASE(0),
-//     .CLKFBOUT_MULT_F(8),
-//     .CLKFBOUT_PHASE(0),
-//     .DIVCLK_DIVIDE(1),
-//     .REF_JITTER1(0.010),
-//     .CLKIN1_PERIOD(8.0),
-//     .STARTUP_WAIT("FALSE"),
-//     .CLKOUT4_CASCADE("FALSE")
-// )
-// clk_mmcm_inst (
-//     .CLKIN1(clk_125mhz_bufg),
-//     .CLKFBIN(mmcm_clkfb),
-//     .RST(mmcm_rst),
-//     .PWRDWN(1'b0),
-//     .CLKOUT0(clk_125mhz_mmcm_out),
-//     .CLKOUT0B(),
-//     .CLKOUT1(),
-//     .CLKOUT1B(),
-//     .CLKOUT2(),
-//     .CLKOUT2B(),
-//     .CLKOUT3(),
-//     .CLKOUT3B(),
-//     .CLKOUT4(),
-//     .CLKOUT5(),
-//     .CLKOUT6(),
-//     .CLKFBOUT(mmcm_clkfb),
-//     .CLKFBOUTB(),
-//     .LOCKED(mmcm_locked)
-// );
-
 // MMCM instance
 // 25 MHz in, 125 MHz out
 // PFD range: 10 MHz to 500 MHz
