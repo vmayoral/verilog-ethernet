@@ -239,7 +239,7 @@ clk_mmcm_inst (
     .CLKIN1(clk_25mhz_bufg),
     .CLKFBIN(mmcm_clkfb),
     // .RST(mmcm_rst),
-    .RST(1'b1),
+    .RST(1'b0),
     .PWRDWN(1'b0),
     .CLKOUT0(clk_125mhz_mmcm_out),
     .CLKOUT0B(),
