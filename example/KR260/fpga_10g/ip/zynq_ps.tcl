@@ -101,7 +101,8 @@ set_property -dict [list \
     CONFIG.PSU__MAXIGP0__DATA_WIDTH {32} \
     CONFIG.PSU__USE__M_AXI_GP1 {0} \
     CONFIG.PSU__USE__M_AXI_GP2 {0} \
-    CONFIG.PSU__USE__S_AXI_GP0 {1} \
+    CONFIG.PSU__USE__S_AXI_GP0 {0} \
+    CONFIG.PSU__USE__S_AXI_GP2 {1} \
     CONFIG.PSU__USE__IRQ0 {1} \
     CONFIG.PSU__CRF_APB__ACPU_CTRL__SRCSEL {APLL} \
     CONFIG.PSU__CRF_APB__DDR_CTRL__SRCSEL {DPLL} \
@@ -192,7 +193,7 @@ set_property -dict [list \
 lappend pl_clk0_busif $m_axil_app_ctrl_port
 
 # DMA interface
-set s_axi_hp0_pin [get_bd_intf_pins $zynq_ultra_ps/S_AXI_HPC0_FPD]
+set s_axi_hp0_pin [get_bd_intf_pins $zynq_ultra_ps/S_AXI_HP0_FPD]
 make_bd_intf_pins_external $s_axi_hp0_pin
 set_property name s_axi_hp0 [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $s_axi_hp0_pin]]
 set s_axi_hp0_port [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $s_axi_hp0_pin]]
