@@ -203,12 +203,12 @@ wire [15:0] rx_udp_source_port;
 wire [15:0] rx_udp_dest_port;
 wire [15:0] rx_udp_length;
 wire [15:0] rx_udp_checksum;
-wire [63:0] rx_udp_payload_axis_tdata;
-wire [7:0] rx_udp_payload_axis_tkeep;
-wire rx_udp_payload_axis_tvalid;
-wire rx_udp_payload_axis_tready;
-wire rx_udp_payload_axis_tlast;
-wire rx_udp_payload_axis_tuser;
+wire [63:0] axis_udp_rx_payload_tdata;
+wire [7:0]  axis_udp_rx_payload_tkeep;
+wire        axis_udp_rx_payload_tvalid;
+wire        axis_udp_rx_payload_tready;
+wire        axis_udp_rx_payload_tlast;
+wire        axis_udp_rx_payload_tuser;
 
 wire tx_udp_hdr_valid;
 wire tx_udp_hdr_ready;
@@ -530,12 +530,12 @@ udp_complete_inst (
     .m_udp_dest_port(rx_udp_dest_port),
     .m_udp_length(rx_udp_length),
     .m_udp_checksum(rx_udp_checksum),
-    .m_udp_payload_axis_tdata(rx_udp_payload_axis_tdata),
-    .m_udp_payload_axis_tkeep(rx_udp_payload_axis_tkeep),
-    .m_udp_payload_axis_tvalid(rx_udp_payload_axis_tvalid),
-    .m_udp_payload_axis_tready(rx_udp_payload_axis_tready),
-    .m_udp_payload_axis_tlast(rx_udp_payload_axis_tlast),
-    .m_udp_payload_axis_tuser(rx_udp_payload_axis_tuser),
+    .m_udp_payload_axis_tdata (axis_udp_rx_payload_tdata),
+    .m_udp_payload_axis_tkeep (axis_udp_rx_payload_tkeep),
+    .m_udp_payload_axis_tvalid(axis_udp_rx_payload_tvalid),
+    .m_udp_payload_axis_tready(axis_udp_rx_payload_tready),
+    .m_udp_payload_axis_tlast (axis_udp_rx_payload_tlast),
+    .m_udp_payload_axis_tuser (axis_udp_rx_payload_tuser),
     // Status signals
     .ip_rx_busy(),
     .ip_tx_busy(),
@@ -559,6 +559,7 @@ udp_complete_inst (
 );
 
 // AXIS (internal) <-> AXI (external)
+
 axi_dma_wr #(
     .AXI_DATA_WIDTH   (64),
     .AXI_ADDR_WIDTH   (32),
@@ -579,33 +580,33 @@ axi_dma_wr #(
     .s_axis_write_desc_tag          (8'd0         ),
     .s_axis_write_desc_valid        (1'b1         ),
     .s_axis_write_desc_ready        (),
-    .s_axis_write_data_tdata        (rx_udp_payload_axis_tdata ),
-    .s_axis_write_data_tkeep        (rx_udp_payload_axis_tkeep ),
-    .s_axis_write_data_tvalid       (rx_udp_payload_axis_tvalid),
-    .s_axis_write_data_tready       (rx_udp_payload_axis_tready),
-    .s_axis_write_data_tlast        (rx_udp_payload_axis_tlast ),
+    .s_axis_write_data_tdata        (axis_udp_rx_payload_tdata ),
+    .s_axis_write_data_tkeep        (axis_udp_rx_payload_tkeep ),
+    .s_axis_write_data_tvalid       (axis_udp_rx_payload_tvalid),
+    .s_axis_write_data_tready       (axis_udp_rx_payload_tready),
+    .s_axis_write_data_tlast        (axis_udp_rx_payload_tlast ),
     .s_axis_write_data_tid          (1'b0),
     .s_axis_write_data_tdest        (),
-    .s_axis_write_data_tuser        (rx_udp_payload_axis_tuser ),
-    .m_axi_awid                     (rx_udp_payload_axi_awid   ),
-    .m_axi_awaddr                   (rx_udp_payload_axi_awaddr ),
-    .m_axi_awlen                    (rx_udp_payload_axi_awlen  ),
-    .m_axi_awsize                   (rx_udp_payload_axi_awsize ),
-    .m_axi_awburst                  (rx_udp_payload_axi_awburst),
-    .m_axi_awlock                   (rx_udp_payload_axi_awlock ),
-    .m_axi_awcache                  (rx_udp_payload_axi_awcache),
-    .m_axi_awprot                   (rx_udp_payload_axi_awprot ),
-    .m_axi_awvalid                  (rx_udp_payload_axi_awvalid),
-    .m_axi_awready                  (rx_udp_payload_axi_awready),
-    .m_axi_wdata                    (rx_udp_payload_axi_wdata  ),
-    .m_axi_wstrb                    (rx_udp_payload_axi_wstrb  ),
-    .m_axi_wlast                    (rx_udp_payload_axi_wlast  ),
-    .m_axi_wvalid                   (rx_udp_payload_axi_wvalid ),
-    .m_axi_wready                   (rx_udp_payload_axi_wready ),
-    .m_axi_bid                      (rx_udp_payload_axi_bid    ),
-    .m_axi_bresp                    (rx_udp_payload_axi_bresp  ),
-    .m_axi_bvalid                   (rx_udp_payload_axi_bvalid ),
-    .m_axi_bready                   (rx_udp_payload_axi_bready ),
+    .s_axis_write_data_tuser        (axis_udp_rx_payload_tuser ),
+    .m_axi_awid                     (m_axi_awid   ),
+    .m_axi_awaddr                   (m_axi_awaddr ),
+    .m_axi_awlen                    (m_axi_awlen  ),
+    .m_axi_awsize                   (m_axi_awsize ),
+    .m_axi_awburst                  (m_axi_awburst),
+    .m_axi_awlock                   (m_axi_awlock ),
+    .m_axi_awcache                  (m_axi_awcache),
+    .m_axi_awprot                   (m_axi_awprot ),
+    .m_axi_awvalid                  (m_axi_awvalid),
+    .m_axi_awready                  (m_axi_awready),
+    .m_axi_wdata                    (m_axi_wdata  ),
+    .m_axi_wstrb                    (m_axi_wstrb  ),
+    .m_axi_wlast                    (m_axi_wlast  ),
+    .m_axi_wvalid                   (m_axi_wvalid ),
+    .m_axi_wready                   (m_axi_wready ),
+    .m_axi_bid                      (m_axi_bid    ),
+    .m_axi_bresp                    (m_axi_bresp  ),
+    .m_axi_bvalid                   (m_axi_bvalid ),
+    .m_axi_bready                   (m_axi_bready ),
     .enable                         (1'b1 ),
     .abort                          (1'b0 )
 );
