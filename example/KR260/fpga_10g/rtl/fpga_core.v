@@ -264,9 +264,9 @@ always @(posedge clk) begin
         match_cond_reg <= 0;
         no_match_reg <= 0;
     end else begin
-        if (rx_udp_payload_axis_tvalid) begin
+        if (axis_udp_rx_payload_tvalid) begin
             if ((~match_cond_reg & ~no_match_reg) |
-                (rx_udp_payload_axis_tvalid & rx_udp_payload_axis_tready & rx_udp_payload_axis_tlast)) begin
+                (axis_udp_rx_payload_tvalid & axis_udp_rx_payload_tready & axis_udp_rx_payload_tlast)) begin
                 match_cond_reg <= match_cond;
                 no_match_reg <= no_match;
             end
@@ -297,9 +297,9 @@ always @(posedge clk) begin
     if (rst) begin
         led_reg <= 0;
     end else begin
-        valid_last <= tx_udp_payload_axis_tvalid;
-        if (tx_udp_payload_axis_tvalid & ~valid_last) begin
-            led_reg <= tx_udp_payload_axis_tdata;
+        valid_last <= axis_udp_tx_payload_tvalid;
+        if (axis_udp_tx_payload_tvalid & ~valid_last) begin
+            led_reg <= axis_udp_tx_payload_tdata;
         end
     end
 end
@@ -636,7 +636,7 @@ axi_dma_rd #(
     .m_axis_read_data_tvalid        (axis_udp_tx_payload_tvalid ),
     .m_axis_read_data_tready        (axis_udp_tx_payload_tready ),
     .m_axis_read_data_tlast         (axis_udp_tx_payload_tlast  ),
-    .m_axis_read_data_tid           (axis_udp_tx_payload_tid    ),
+    .m_axis_read_data_tid           (                           ),
     .m_axis_read_data_tdest         (                           ),
     .m_axis_read_data_tuser         (axis_udp_tx_payload_tuser  ),
     .m_axi_arid                     (m_axi_arid         ),
