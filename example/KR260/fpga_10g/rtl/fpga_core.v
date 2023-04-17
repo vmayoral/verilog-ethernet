@@ -259,24 +259,42 @@ assign tx_ip_payload_axis_tvalid = 0;
 assign tx_ip_payload_axis_tlast = 0;
 assign tx_ip_payload_axis_tuser = 0;
 
-// assign tx_udp_hdr_valid = rx_udp_hdr_valid & match_cond;
-// assign rx_udp_hdr_ready = (tx_eth_hdr_ready & match_cond) | no_match;
-// assign tx_udp_ip_dscp = 0;
-// assign tx_udp_ip_ecn = 0;
-// assign tx_udp_ip_ttl = 64;
-// assign tx_udp_ip_source_ip = local_ip;
-// assign tx_udp_ip_dest_ip = rx_udp_ip_source_ip;
-// assign tx_udp_source_port = rx_udp_dest_port;
-// assign tx_udp_dest_port = rx_udp_source_port;
-// assign tx_udp_length = rx_udp_length;
-// assign tx_udp_checksum = 0;
+// Loop back UDP
+wire match_cond = rx_udp_dest_port == 1234;
+wire no_match = ~match_cond;
 
-assign tx_udp_payload_axis_tdata = tx_fifo_udp_payload_axis_tdata;
-assign tx_udp_payload_axis_tkeep = tx_fifo_udp_payload_axis_tkeep;
-assign tx_udp_payload_axis_tvalid = tx_fifo_udp_payload_axis_tvalid;
-assign tx_fifo_udp_payload_axis_tready = tx_udp_payload_axis_tready;
-assign tx_udp_payload_axis_tlast = tx_fifo_udp_payload_axis_tlast;
-assign tx_udp_payload_axis_tuser = tx_fifo_udp_payload_axis_tuser;
+reg match_cond_reg = 0;
+reg no_match_reg = 0;
+
+always @(posedge clk) begin
+    if (rst) begin
+        match_cond_reg <= 0;
+        no_match_reg <= 0;
+    end else begin
+        if (rx_udp_payload_axis_tvalid) begin
+            if ((~match_cond_reg & ~no_match_reg) |
+                (rx_udp_payload_axis_tvalid & rx_udp_payload_axis_tready & rx_udp_payload_axis_tlast)) begin
+                match_cond_reg <= match_cond;
+                no_match_reg <= no_match;
+            end
+        end else begin
+            match_cond_reg <= 0;
+            no_match_reg <= 0;
+        end
+    end
+end
+
+assign tx_udp_hdr_valid = rx_udp_hdr_valid & match_cond;
+assign rx_udp_hdr_ready = (tx_eth_hdr_ready & match_cond) | no_match;
+assign tx_udp_ip_dscp = 0;
+assign tx_udp_ip_ecn = 0;
+assign tx_udp_ip_ttl = 64;
+assign tx_udp_ip_source_ip = local_ip;
+assign tx_udp_ip_dest_ip = rx_udp_ip_source_ip;
+assign tx_udp_source_port = rx_udp_dest_port;
+assign tx_udp_dest_port = rx_udp_source_port;
+assign tx_udp_length = rx_udp_length;
+assign tx_udp_checksum = 0;
 
 // Place first payload byte onto LEDs
 reg valid_last = 0;
