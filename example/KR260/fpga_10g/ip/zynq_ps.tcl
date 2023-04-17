@@ -141,7 +141,7 @@ set_property name pl_clk0 [get_bd_ports -of_objects [get_bd_nets -of_objects $pl
 set pl_clk0_port [get_bd_ports -of_objects [get_bd_nets -of_objects $pl_clk0]]
 
 connect_bd_net $pl_clk0 [get_bd_pins $zynq_ultra_ps/maxihpm0_fpd_aclk]
-connect_bd_net $pl_clk0 [get_bd_pins $zynq_ultra_ps/saxihpc0_fpd_aclk]
+connect_bd_net $pl_clk0 [get_bd_pins $zynq_ultra_ps/saxihp0_fpd_aclk]
 connect_bd_net $pl_clk0 [get_bd_pins $proc_sys_reset/slowest_sync_clk]
 connect_bd_net $pl_clk0 [get_bd_pins $axi_interconnect_ctrl/ACLK]
 connect_bd_net $pl_clk0 [get_bd_pins $axi_interconnect_ctrl/S00_ACLK]
@@ -192,11 +192,11 @@ set_property -dict [list \
 lappend pl_clk0_busif $m_axil_app_ctrl_port
 
 # DMA interface
-set s_axi_dma_pin [get_bd_intf_pins $zynq_ultra_ps/S_AXI_HPC0_FPD]
-make_bd_intf_pins_external $s_axi_dma_pin
-set_property name s_axi_dma [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $s_axi_dma_pin]]
-set s_axi_dma_port [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $s_axi_dma_pin]]
-lappend pl_clk0_busif $s_axi_dma_port
+set s_axi_hp0_pin [get_bd_intf_pins $zynq_ultra_ps/S_AXI_HPC0_FPD]
+make_bd_intf_pins_external $s_axi_hp0_pin
+set_property name s_axi_hp0 [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $s_axi_hp0_pin]]
+set s_axi_hp0_port [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $s_axi_hp0_pin]]
+lappend pl_clk0_busif $s_axi_hp0_port
 
 # IRQ
 set pl_ps_irq0 [get_bd_pins $zynq_ultra_ps/pl_ps_irq0]
@@ -215,10 +215,10 @@ foreach port $pl_clk0_busif {
 set_property CONFIG.ASSOCIATED_BUSIF [join $lst ":"] $pl_clk0_port
 
 # Assign addresses
-assign_bd_address -target_address_space /s_axi_dma [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HPC0_DDR_HIGH] -force
-assign_bd_address -target_address_space /s_axi_dma [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HPC0_QSPI] -force
-assign_bd_address -target_address_space /s_axi_dma [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HPC0_DDR_LOW] -force
-assign_bd_address -target_address_space /s_axi_dma [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HPC0_LPS_OCM] -force
+assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_DDR_HIGH] -force
+assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_QSPI] -force
+assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_DDR_LOW] -force
+assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_LPS_OCM] -force
 
 assign_bd_address -offset 0xA000_0000 -range 16M -target_address_space $zynq_ultra_ps/Data [get_bd_addr_segs $m_axil_ctrl_port/Reg] -force
 assign_bd_address -offset 0xA800_0000 -range 16M -target_address_space $zynq_ultra_ps/Data [get_bd_addr_segs $m_axil_app_ctrl_port/Reg] -force

@@ -274,6 +274,43 @@ wire [1:0]                           axil_app_ctrl_rresp;
 wire                                 axil_app_ctrl_rvalid;
 wire                                 axil_app_ctrl_rready;
 
+// AXI 
+wire [00:00] fpga_core_axi_arid   ;
+wire [31:00] fpga_core_axi_araddr ;
+wire [07:00] fpga_core_axi_arlen  ;
+wire [02:00] fpga_core_axi_arsize ;
+wire [01:00] fpga_core_axi_arburst;
+wire         fpga_core_axi_arlock ;
+wire [03:00] fpga_core_axi_arcache;
+wire [02:00] fpga_core_axi_arprot ;
+wire         fpga_core_axi_arvalid;
+wire         fpga_core_axi_arready;
+wire [01:00] fpga_core_axi_rid    ;
+wire [63:00] fpga_core_axi_rdata  ;
+wire [01:00] fpga_core_axi_rresp  ;
+wire         fpga_core_axi_rlast  ;
+wire         fpga_core_axi_rvalid ;
+wire         fpga_core_axi_rready ;
+wire [00:00] fpga_core_axi_awid   ;
+wire [31:00] fpga_core_axi_awaddr ;
+wire [07:00] fpga_core_axi_awlen  ;
+wire [02:00] fpga_core_axi_awsize ;
+wire [01:00] fpga_core_axi_awburst;
+wire         fpga_core_axi_awlock ;
+wire [03:00] fpga_core_axi_awcache;
+wire [02:00] fpga_core_axi_awprot ;
+wire         fpga_core_axi_awvalid;
+wire         fpga_core_axi_awready;
+wire [63:00] fpga_core_axi_wdata  ;
+wire [07:00] fpga_core_axi_wstrb  ;
+wire         fpga_core_axi_wlast  ;
+wire         fpga_core_axi_wvalid ;
+wire         fpga_core_axi_wready ;
+wire [07:00] fpga_core_axi_bid    ;
+wire [01:00] fpga_core_axi_bresp  ;
+wire         fpga_core_axi_bvalid ;
+wire         fpga_core_axi_bready ;
+
 // implements an interrupt stretching mechanism to extend the duration 
 // of an interrupt signal to ensure that it is long enough to be detected 
 // by the receiving system. 
@@ -344,45 +381,45 @@ zynq_ps zynq_ps_inst (
     .m_axil_app_ctrl_wstrb(axil_app_ctrl_wstrb),
     .m_axil_app_ctrl_wvalid(axil_app_ctrl_wvalid),
 
-    .s_axi_dma_araddr(axi_araddr),
-    .s_axi_dma_arburst(axi_arburst),
-    .s_axi_dma_arcache(axi_arcache),
-    .s_axi_dma_arid(axi_arid),
-    .s_axi_dma_arlen(axi_arlen),
-    .s_axi_dma_arlock(axi_arlock),
-    .s_axi_dma_arprot(axi_arprot),
-    .s_axi_dma_arqos({4{1'b0}}),
-    .s_axi_dma_arready(axi_arready),
-    .s_axi_dma_arsize(axi_arsize),
-    .s_axi_dma_aruser(1'b0),
-    .s_axi_dma_arvalid(axi_arvalid),
-    .s_axi_dma_awaddr(axi_awaddr),
-    .s_axi_dma_awburst(axi_awburst),
-    .s_axi_dma_awcache(axi_awcache),
-    .s_axi_dma_awid(axi_awid),
-    .s_axi_dma_awlen(axi_awlen),
-    .s_axi_dma_awlock(axi_awlock),
-    .s_axi_dma_awprot(axi_awprot),
-    .s_axi_dma_awqos({4{1'b0}}),
-    .s_axi_dma_awready(axi_awready),
-    .s_axi_dma_awsize(axi_awsize),
-    .s_axi_dma_awuser(1'b0),
-    .s_axi_dma_awvalid(axi_awvalid),
-    .s_axi_dma_bid(axi_bid),
-    .s_axi_dma_bready(axi_bready),
-    .s_axi_dma_bresp(axi_bresp),
-    .s_axi_dma_bvalid(axi_bvalid),
-    .s_axi_dma_rdata(axi_rdata),
-    .s_axi_dma_rid(axi_rid),
-    .s_axi_dma_rlast(axi_rlast),
-    .s_axi_dma_rready(axi_rready),
-    .s_axi_dma_rresp(axi_rresp),
-    .s_axi_dma_rvalid(axi_rvalid),
-    .s_axi_dma_wdata(axi_wdata),
-    .s_axi_dma_wlast(axi_wlast),
-    .s_axi_dma_wready(axi_wready),
-    .s_axi_dma_wstrb(axi_wstrb),
-    .s_axi_dma_wvalid(axi_wvalid)
+    .s_axi_hp0_araddr  (fpga_core_axi_araddr  ),
+    .s_axi_hp0_arburst (fpga_core_axi_arburst ),
+    .s_axi_hp0_arcache (fpga_core_axi_arcache ),
+    .s_axi_hp0_arid    (fpga_core_axi_arid    ),
+    .s_axi_hp0_arlen   (fpga_core_axi_arlen   ),
+    .s_axi_hp0_arlock  (fpga_core_axi_arlock  ),
+    .s_axi_hp0_arprot  (fpga_core_axi_arprot  ),
+    .s_axi_hp0_arqos   (   ),
+    .s_axi_hp0_arready (fpga_core_axi_arready ),
+    .s_axi_hp0_arsize  (fpga_core_axi_arsize  ),
+    .s_axi_hp0_aruser  (  ),
+    .s_axi_hp0_arvalid (fpga_core_axi_arvalid ),
+    .s_axi_hp0_awaddr  (fpga_core_axi_awaddr  ),
+    .s_axi_hp0_awburst (fpga_core_axi_awburst ),
+    .s_axi_hp0_awcache (fpga_core_axi_awcache ),
+    .s_axi_hp0_awid    (fpga_core_axi_awid    ),
+    .s_axi_hp0_awlen   (fpga_core_axi_awlen   ),
+    .s_axi_hp0_awlock  (fpga_core_axi_awlock  ),
+    .s_axi_hp0_awprot  (fpga_core_axi_awprot  ),
+    .s_axi_hp0_awqos   (   ),
+    .s_axi_hp0_awready (fpga_core_axi_awready ),
+    .s_axi_hp0_awsize  (fpga_core_axi_awsize  ),
+    .s_axi_hp0_awuser  (  ),
+    .s_axi_hp0_awvalid (fpga_core_axi_awvalid ),
+    .s_axi_hp0_bid     (fpga_core_axi_bid     ),
+    .s_axi_hp0_bready  (fpga_core_axi_bready  ),
+    .s_axi_hp0_bresp   (fpga_core_axi_bresp   ),
+    .s_axi_hp0_bvalid  (fpga_core_axi_bvalid  ),
+    .s_axi_hp0_rdata   (fpga_core_axi_rdata   ),
+    .s_axi_hp0_rid     (fpga_core_axi_rid     ),
+    .s_axi_hp0_rlast   (fpga_core_axi_rlast   ),
+    .s_axi_hp0_rready  (fpga_core_axi_rready  ),
+    .s_axi_hp0_rresp   (fpga_core_axi_rresp   ),
+    .s_axi_hp0_rvalid  (fpga_core_axi_rvalid  ),
+    .s_axi_hp0_wdata   (fpga_core_axi_wdata   ),
+    .s_axi_hp0_wlast   (fpga_core_axi_wlast   ),
+    .s_axi_hp0_wready  (fpga_core_axi_wready  ),
+    .s_axi_hp0_wstrb   (fpga_core_axi_wstrb   ),
+    .s_axi_hp0_wvalid  (fpga_core_axi_wvalid  )                
 );
 
 // XGMII 10G PHY
@@ -492,7 +529,45 @@ core_inst (
     .sfp0_rx_clk(sfp0_rx_clk_int),
     .sfp0_rx_rst(sfp0_rx_rst_int),
     .sfp0_rxd(sfp0_rxd_int),
-    .sfp0_rxc(sfp0_rxc_int)
+    .sfp0_rxc(sfp0_rxc_int),
+    /*
+     * Master AXI (for udp rx/tx)
+     */    
+    .m_axi_arid    (fpga_core_axi_arid   ),
+    .m_axi_araddr  (fpga_core_axi_araddr ),
+    .m_axi_arlen   (fpga_core_axi_arlen  ),
+    .m_axi_arsize  (fpga_core_axi_arsize ),
+    .m_axi_arburst (fpga_core_axi_arburst),
+    .m_axi_arlock  (fpga_core_axi_arlock ),
+    .m_axi_arcache (fpga_core_axi_arcache),
+    .m_axi_arprot  (fpga_core_axi_arprot ),
+    .m_axi_arvalid (fpga_core_axi_arvalid),
+    .m_axi_arready (fpga_core_axi_arready),
+    .m_axi_rid     (fpga_core_axi_rid    ),
+    .m_axi_rdata   (fpga_core_axi_rdata  ),
+    .m_axi_rresp   (fpga_core_axi_rresp  ),
+    .m_axi_rlast   (fpga_core_axi_rlast  ),
+    .m_axi_rvalid  (fpga_core_axi_rvalid ),
+    .m_axi_rready  (fpga_core_axi_rready ),
+    .m_axi_awid    (fpga_core_axi_awid   ),
+    .m_axi_awaddr  (fpga_core_axi_awaddr ),
+    .m_axi_awlen   (fpga_core_axi_awlen  ),
+    .m_axi_awsize  (fpga_core_axi_awsize ),
+    .m_axi_awburst (fpga_core_axi_awburst),
+    .m_axi_awlock  (fpga_core_axi_awlock ),
+    .m_axi_awcache (fpga_core_axi_awcache),
+    .m_axi_awprot  (fpga_core_axi_awprot ),
+    .m_axi_awvalid (fpga_core_axi_awvalid),
+    .m_axi_awready (fpga_core_axi_awready),
+    .m_axi_wdata   (fpga_core_axi_wdata  ),
+    .m_axi_wstrb   (fpga_core_axi_wstrb  ),
+    .m_axi_wlast   (fpga_core_axi_wlast  ),
+    .m_axi_wvalid  (fpga_core_axi_wvalid ),
+    .m_axi_wready  (fpga_core_axi_wready ),
+    .m_axi_bid     (fpga_core_axi_bid    ),
+    .m_axi_bresp   (fpga_core_axi_bresp  ),
+    .m_axi_bvalid  (fpga_core_axi_bvalid ),
+    .m_axi_bready  (fpga_core_axi_bready ) 
 );
 
 endmodule
