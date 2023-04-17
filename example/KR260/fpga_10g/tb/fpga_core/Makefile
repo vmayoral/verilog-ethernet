@@ -57,6 +57,7 @@ VERILOG_SOURCES += ../../lib/eth/lib/axis/rtl/priority_encoder.v
 VERILOG_SOURCES += ../../lib/eth/lib/axis/rtl/axis_fifo.v
 VERILOG_SOURCES += ../../lib/eth/lib/axis/rtl/axis_async_fifo.v
 VERILOG_SOURCES += ../../lib/eth/lib/axis/rtl/axis_async_fifo_adapter.v
+VERILOG_SOURCES += ../../lib/eth/lib/axi/rtl/axi_dma_wr.v
 
 # module parameters
 #export PARAM_A ?= value

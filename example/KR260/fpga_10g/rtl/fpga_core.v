@@ -56,7 +56,30 @@ module fpga_core
     input  wire        sfp0_rx_clk,
     input  wire        sfp0_rx_rst,
     input  wire [63:0] sfp0_rxd,
-    input  wire [7:0]  sfp0_rxc
+    input  wire [7:0]  sfp0_rxc,
+
+    /*
+     * AXI (rx)
+     */
+    output wire [00:00] rx_udp_payload_axi_awid   ,
+    output wire [31:00] rx_udp_payload_axi_awaddr ,
+    output wire [07:00] rx_udp_payload_axi_awlen  ,
+    output wire [02:00] rx_udp_payload_axi_awsize ,
+    output wire [01:00] rx_udp_payload_axi_awburst,
+    output wire         rx_udp_payload_axi_awlock ,
+    output wire [03:00] rx_udp_payload_axi_awcache,
+    output wire [02:00] rx_udp_payload_axi_awprot ,
+    output wire         rx_udp_payload_axi_awvalid,
+    input  wire         rx_udp_payload_axi_awready,
+    output wire [63:00] rx_udp_payload_axi_wdata  ,
+    output wire [07:00] rx_udp_payload_axi_wstrb  ,
+    output wire         rx_udp_payload_axi_wlast  ,
+    output wire         rx_udp_payload_axi_wvalid ,
+    input  wire         rx_udp_payload_axi_wready ,
+    input  wire [07:00] rx_udp_payload_axi_bid    ,
+    input  wire [01:00] rx_udp_payload_axi_bresp  ,
+    input  wire         rx_udp_payload_axi_bvalid ,
+    output wire         rx_udp_payload_axi_bready     
 );
 
 // AXI between MAC and Ethernet modules
@@ -188,14 +211,7 @@ wire tx_udp_payload_axis_tvalid;
 wire tx_udp_payload_axis_tready;
 wire tx_udp_payload_axis_tlast;
 wire tx_udp_payload_axis_tuser;
-
-wire [63:0] rx_fifo_udp_payload_axis_tdata;
-wire [7:0] rx_fifo_udp_payload_axis_tkeep;
-wire rx_fifo_udp_payload_axis_tvalid;
-wire rx_fifo_udp_payload_axis_tready;
-wire rx_fifo_udp_payload_axis_tlast;
-wire rx_fifo_udp_payload_axis_tuser;
-
+ 
 wire [63:0] tx_fifo_udp_payload_axis_tdata;
 wire [7:0] tx_fifo_udp_payload_axis_tkeep;
 wire tx_fifo_udp_payload_axis_tvalid;
@@ -227,42 +243,17 @@ assign tx_ip_payload_axis_tvalid = 0;
 assign tx_ip_payload_axis_tlast = 0;
 assign tx_ip_payload_axis_tuser = 0;
 
-// Loop back UDP
-wire match_cond = rx_udp_dest_port == 1234;
-wire no_match = ~match_cond;
-
-reg match_cond_reg = 0;
-reg no_match_reg = 0;
-
-always @(posedge clk) begin
-    if (rst) begin
-        match_cond_reg <= 0;
-        no_match_reg <= 0;
-    end else begin
-        if (rx_udp_payload_axis_tvalid) begin
-            if ((~match_cond_reg & ~no_match_reg) |
-                (rx_udp_payload_axis_tvalid & rx_udp_payload_axis_tready & rx_udp_payload_axis_tlast)) begin
-                match_cond_reg <= match_cond;
-                no_match_reg <= no_match;
-            end
-        end else begin
-            match_cond_reg <= 0;
-            no_match_reg <= 0;
-        end
-    end
-end
-
-assign tx_udp_hdr_valid = rx_udp_hdr_valid & match_cond;
-assign rx_udp_hdr_ready = (tx_eth_hdr_ready & match_cond) | no_match;
-assign tx_udp_ip_dscp = 0;
-assign tx_udp_ip_ecn = 0;
-assign tx_udp_ip_ttl = 64;
-assign tx_udp_ip_source_ip = local_ip;
-assign tx_udp_ip_dest_ip = rx_udp_ip_source_ip;
-assign tx_udp_source_port = rx_udp_dest_port;
-assign tx_udp_dest_port = rx_udp_source_port;
-assign tx_udp_length = rx_udp_length;
-assign tx_udp_checksum = 0;
+// assign tx_udp_hdr_valid = rx_udp_hdr_valid & match_cond;
+// assign rx_udp_hdr_ready = (tx_eth_hdr_ready & match_cond) | no_match;
+// assign tx_udp_ip_dscp = 0;
+// assign tx_udp_ip_ecn = 0;
+// assign tx_udp_ip_ttl = 64;
+// assign tx_udp_ip_source_ip = local_ip;
+// assign tx_udp_ip_dest_ip = rx_udp_ip_source_ip;
+// assign tx_udp_source_port = rx_udp_dest_port;
+// assign tx_udp_dest_port = rx_udp_source_port;
+// assign tx_udp_length = rx_udp_length;
+// assign tx_udp_checksum = 0;
 
 assign tx_udp_payload_axis_tdata = tx_fifo_udp_payload_axis_tdata;
 assign tx_udp_payload_axis_tkeep = tx_fifo_udp_payload_axis_tkeep;
@@ -270,13 +261,6 @@ assign tx_udp_payload_axis_tvalid = tx_fifo_udp_payload_axis_tvalid;
 assign tx_fifo_udp_payload_axis_tready = tx_udp_payload_axis_tready;
 assign tx_udp_payload_axis_tlast = tx_fifo_udp_payload_axis_tlast;
 assign tx_udp_payload_axis_tuser = tx_fifo_udp_payload_axis_tuser;
-
-assign rx_fifo_udp_payload_axis_tdata = rx_udp_payload_axis_tdata;
-assign rx_fifo_udp_payload_axis_tkeep = rx_udp_payload_axis_tkeep;
-assign rx_fifo_udp_payload_axis_tvalid = rx_udp_payload_axis_tvalid & match_cond_reg;
-assign rx_udp_payload_axis_tready = (rx_fifo_udp_payload_axis_tready & match_cond_reg) | no_match_reg;
-assign rx_fifo_udp_payload_axis_tlast = rx_udp_payload_axis_tlast;
-assign rx_fifo_udp_payload_axis_tuser = rx_udp_payload_axis_tuser;
 
 // Place first payload byte onto LEDs
 reg valid_last = 0;
@@ -540,45 +524,56 @@ udp_complete_inst (
     .clear_arp_cache(1'b0)
 );
 
-axis_fifo #(
-    .DEPTH(8192),
-    .DATA_WIDTH(64),
-    .KEEP_ENABLE(1),
-    .KEEP_WIDTH(8),
-    .ID_ENABLE(0),
-    .DEST_ENABLE(0),
-    .USER_ENABLE(1),
-    .USER_WIDTH(1),
-    .FRAME_FIFO(0)
-)
-udp_payload_fifo (
-    .clk(clk),
-    .rst(rst),
-
-    // AXI input
-    .s_axis_tdata(rx_fifo_udp_payload_axis_tdata),
-    .s_axis_tkeep(rx_fifo_udp_payload_axis_tkeep),
-    .s_axis_tvalid(rx_fifo_udp_payload_axis_tvalid),
-    .s_axis_tready(rx_fifo_udp_payload_axis_tready),
-    .s_axis_tlast(rx_fifo_udp_payload_axis_tlast),
-    .s_axis_tid(0),
-    .s_axis_tdest(0),
-    .s_axis_tuser(rx_fifo_udp_payload_axis_tuser),
-
-    // AXI output
-    .m_axis_tdata(tx_fifo_udp_payload_axis_tdata),
-    .m_axis_tkeep(tx_fifo_udp_payload_axis_tkeep),
-    .m_axis_tvalid(tx_fifo_udp_payload_axis_tvalid),
-    .m_axis_tready(tx_fifo_udp_payload_axis_tready),
-    .m_axis_tlast(tx_fifo_udp_payload_axis_tlast),
-    .m_axis_tid(),
-    .m_axis_tdest(),
-    .m_axis_tuser(tx_fifo_udp_payload_axis_tuser),
-
-    // Status
-    .status_overflow(),
-    .status_bad_frame(),
-    .status_good_frame()
+// AXIS (internal) <-> AXI (external)
+axi_dma_wr #(
+    .AXI_DATA_WIDTH   (64),
+    .AXI_ADDR_WIDTH   (32),
+    .AXI_ID_WIDTH     (1),
+    .AXIS_DATA_WIDTH  (64),
+    .AXIS_KEEP_ENABLE (1),
+    .AXIS_KEEP_WIDTH  (8),
+    .AXIS_LAST_ENABLE (1),
+    .AXIS_ID_ENABLE   (0),
+    .AXIS_DEST_ENABLE (0),
+    .AXIS_USER_ENABLE (1),
+    .AXIS_USER_WIDTH  (1)
+) axi_dma_wr_inst (
+    .clk                            (clk),
+    .rst                            (rst),
+    .s_axis_write_desc_addr         (32'h10000000 ),
+    .s_axis_write_desc_len          (9'd256       ),
+    .s_axis_write_desc_tag          (8'd0         ),
+    .s_axis_write_desc_valid        (1'b1         ),
+    .s_axis_write_desc_ready        (),
+    .s_axis_write_data_tdata        (rx_udp_payload_axis_tdata ),
+    .s_axis_write_data_tkeep        (rx_udp_payload_axis_tkeep ),
+    .s_axis_write_data_tvalid       (rx_udp_payload_axis_tvalid),
+    .s_axis_write_data_tready       (rx_udp_payload_axis_tready),
+    .s_axis_write_data_tlast        (rx_udp_payload_axis_tlast ),
+    .s_axis_write_data_tid          (1'b0),
+    .s_axis_write_data_tdest        (),
+    .s_axis_write_data_tuser        (rx_udp_payload_axis_tuser ),
+    .m_axi_awid                     (rx_udp_payload_axi_awid   ),
+    .m_axi_awaddr                   (rx_udp_payload_axi_awaddr ),
+    .m_axi_awlen                    (rx_udp_payload_axi_awlen  ),
+    .m_axi_awsize                   (rx_udp_payload_axi_awsize ),
+    .m_axi_awburst                  (rx_udp_payload_axi_awburst),
+    .m_axi_awlock                   (rx_udp_payload_axi_awlock ),
+    .m_axi_awcache                  (rx_udp_payload_axi_awcache),
+    .m_axi_awprot                   (rx_udp_payload_axi_awprot ),
+    .m_axi_awvalid                  (rx_udp_payload_axi_awvalid),
+    .m_axi_awready                  (rx_udp_payload_axi_awready),
+    .m_axi_wdata                    (rx_udp_payload_axi_wdata  ),
+    .m_axi_wstrb                    (rx_udp_payload_axi_wstrb  ),
+    .m_axi_wlast                    (rx_udp_payload_axi_wlast  ),
+    .m_axi_wvalid                   (rx_udp_payload_axi_wvalid ),
+    .m_axi_wready                   (rx_udp_payload_axi_wready ),
+    .m_axi_bid                      (rx_udp_payload_axi_bid    ),
+    .m_axi_bresp                    (rx_udp_payload_axi_bresp  ),
+    .m_axi_bvalid                   (rx_udp_payload_axi_bvalid ),
+    .m_axi_bready                   (rx_udp_payload_axi_bready ),
+    .enable                         (1'b1 ),
+    .abort                          (1'b0 )
 );
 
 endmodule
