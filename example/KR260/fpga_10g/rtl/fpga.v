@@ -311,6 +311,8 @@ wire [01:00] fpga_core_axi_bresp  ;
 wire         fpga_core_axi_bvalid ;
 wire         fpga_core_axi_bready ;
 
+wire [31:00] shared_mem_ptr_s;
+
 // implements an interrupt stretching mechanism to extend the duration 
 // of an interrupt signal to ensure that it is long enough to be detected 
 // by the receiving system. 
@@ -380,6 +382,7 @@ zynq_ps zynq_ps_inst (
     .m_axil_app_ctrl_wready(axil_app_ctrl_wready),
     .m_axil_app_ctrl_wstrb(axil_app_ctrl_wstrb),
     .m_axil_app_ctrl_wvalid(axil_app_ctrl_wvalid),
+    .GPIO_SHMEM_tri_o  (shared_mem_ptr_s),
 
     .s_axi_hp0_araddr  (fpga_core_axi_araddr  ),
     .s_axi_hp0_arburst (fpga_core_axi_arburst ),
@@ -567,7 +570,11 @@ core_inst (
     .m_axi_bid     (fpga_core_axi_bid    ),
     .m_axi_bresp   (fpga_core_axi_bresp  ),
     .m_axi_bvalid  (fpga_core_axi_bvalid ),
-    .m_axi_bready  (fpga_core_axi_bready ) 
+    .m_axi_bready  (fpga_core_axi_bready ),
+    /*
+     * Master AXI (for udp rx/tx)
+     */  
+     .shared_mem_ptr_i (shared_mem_ptr_s)
 );
 
 endmodule

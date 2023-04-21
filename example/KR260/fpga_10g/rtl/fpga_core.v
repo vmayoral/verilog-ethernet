@@ -95,7 +95,12 @@ module fpga_core
     input  wire [07:00] m_axi_bid    ,
     input  wire [01:00] m_axi_bresp  ,
     input  wire         m_axi_bvalid ,
-    output wire         m_axi_bready     
+    output wire         m_axi_bready ,
+    
+    /*
+     * Control
+     */
+    input  wire [31:00] shared_mem_ptr_i
 );
 
 // AXI between MAC and Ethernet modules
@@ -553,6 +558,15 @@ udp_complete_inst (
 
 // AXIS (internal) <-> AXI (external)
 
+reg valid_address;
+always @(posedge clk) begin
+    if (rst || shared_mem_ptr_i == 32'b0) begin
+        valid_address = 0;
+    end else begin
+        valid_address = 1;
+    end
+end 
+
 axi_dma_wr #(
     .AXI_DATA_WIDTH   (64),
     .AXI_ADDR_WIDTH   (32),
@@ -568,10 +582,10 @@ axi_dma_wr #(
 ) axi_dma_wr_inst (
     .clk                            (clk),
     .rst                            (rst),
-    .s_axis_write_desc_addr         (32'h10000000 ),
-    .s_axis_write_desc_len          (9'd256       ),
+    .s_axis_write_desc_addr         (shared_mem_ptr_i ),
+    .s_axis_write_desc_len          (9'd7       ),
     .s_axis_write_desc_tag          (8'd0         ),
-    .s_axis_write_desc_valid        (1'b1         ),
+    .s_axis_write_desc_valid        (valid_address),
     .s_axis_write_desc_ready        (),
     .s_axis_write_data_tdata        (axis_udp_rx_payload_tdata ),
     .s_axis_write_data_tkeep        (axis_udp_rx_payload_tkeep ),
@@ -620,13 +634,13 @@ axi_dma_rd #(
 ) axi_dma_rd_inst (
     .clk                            (clk),
     .rst                            (rst),
-    .s_axis_read_desc_addr          (32'h20000000),
-    .s_axis_read_desc_len           (20'd64),
+    .s_axis_read_desc_addr          (shared_mem_ptr_i),
+    .s_axis_read_desc_len           (20'd7),
     .s_axis_read_desc_tag           (8'd0),
     .s_axis_read_desc_id            (1'b0),
     .s_axis_read_desc_dest          (),
     .s_axis_read_desc_user          (1'b0),
-    .s_axis_read_desc_valid         (1'b1),
+    .s_axis_read_desc_valid         (valid_address),
     .s_axis_read_desc_ready         ( ),
     .m_axis_read_desc_status_tag    ( ),
     .m_axis_read_desc_status_error  ( ),
