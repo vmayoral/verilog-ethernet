@@ -40,10 +40,6 @@ module fpga #
     parameter AXI_STRB_WIDTH = (AXI_DATA_WIDTH/8),
     parameter AXI_ID_WIDTH = 8,
 
-    // Interrupts
-    parameter IRQ_COUNT = 32,
-    parameter IRQ_STRETCH = 10,
-
     // AXI lite interface configuration (control)
     parameter AXIL_CTRL_DATA_WIDTH = 32,
     parameter AXIL_CTRL_ADDR_WIDTH = 24,
@@ -190,91 +186,7 @@ sync_reset_125mhz_inst (
     .out(rst_125mhz_int)
 );
 
-// Clock and reset
-wire zynq_pl_clk;
-wire zynq_pl_reset;
-
-// Zynq AXI MM
-wire [IRQ_COUNT-1:0]                 irq;
-
-wire [AXI_ID_WIDTH-1:0]              axi_awid;
-wire [AXI_ADDR_WIDTH-1:0]            axi_awaddr;
-wire [7:0]                           axi_awlen;
-wire [2:0]                           axi_awsize;
-wire [1:0]                           axi_awburst;
-wire                                 axi_awlock;
-wire [3:0]                           axi_awcache;
-wire [2:0]                           axi_awprot;
-wire                                 axi_awvalid;
-wire                                 axi_awready;
-wire [AXI_DATA_WIDTH-1:0]            axi_wdata;
-wire [AXI_STRB_WIDTH-1:0]            axi_wstrb;
-wire                                 axi_wlast;
-wire                                 axi_wvalid;
-wire                                 axi_wready;
-wire [AXI_ID_WIDTH-1:0]              axi_bid;
-wire [1:0]                           axi_bresp;
-wire                                 axi_bvalid;
-wire                                 axi_bready;
-wire [AXI_ID_WIDTH-1:0]              axi_arid;
-wire [AXI_ADDR_WIDTH-1:0]            axi_araddr;
-wire [7:0]                           axi_arlen;
-wire [2:0]                           axi_arsize;
-wire [1:0]                           axi_arburst;
-wire                                 axi_arlock;
-wire [3:0]                           axi_arcache;
-wire [2:0]                           axi_arprot;
-wire                                 axi_arvalid;
-wire                                 axi_arready;
-wire [AXI_ID_WIDTH-1:0]              axi_rid;
-wire [AXI_DATA_WIDTH-1:0]            axi_rdata;
-wire [1:0]                           axi_rresp;
-wire                                 axi_rlast;
-wire                                 axi_rvalid;
-wire                                 axi_rready;
-
-// AXI lite connections
-wire [AXIL_CTRL_ADDR_WIDTH-1:0]      axil_ctrl_awaddr;
-wire [2:0]                           axil_ctrl_awprot;
-wire                                 axil_ctrl_awvalid;
-wire                                 axil_ctrl_awready;
-wire [AXIL_CTRL_DATA_WIDTH-1:0]      axil_ctrl_wdata;
-wire [AXIL_CTRL_STRB_WIDTH-1:0]      axil_ctrl_wstrb;
-wire                                 axil_ctrl_wvalid;
-wire                                 axil_ctrl_wready;
-wire [1:0]                           axil_ctrl_bresp;
-wire                                 axil_ctrl_bvalid;
-wire                                 axil_ctrl_bready;
-wire [AXIL_CTRL_ADDR_WIDTH-1:0]      axil_ctrl_araddr;
-wire [2:0]                           axil_ctrl_arprot;
-wire                                 axil_ctrl_arvalid;
-wire                                 axil_ctrl_arready;
-wire [AXIL_CTRL_DATA_WIDTH-1:0]      axil_ctrl_rdata;
-wire [1:0]                           axil_ctrl_rresp;
-wire                                 axil_ctrl_rvalid;
-wire                                 axil_ctrl_rready;
-
-wire [AXIL_APP_CTRL_ADDR_WIDTH-1:0]  axil_app_ctrl_awaddr;
-wire [2:0]                           axil_app_ctrl_awprot;
-wire                                 axil_app_ctrl_awvalid;
-wire                                 axil_app_ctrl_awready;
-wire [AXIL_APP_CTRL_DATA_WIDTH-1:0]  axil_app_ctrl_wdata;
-wire [AXIL_APP_CTRL_STRB_WIDTH-1:0]  axil_app_ctrl_wstrb;
-wire                                 axil_app_ctrl_wvalid;
-wire                                 axil_app_ctrl_wready;
-wire [1:0]                           axil_app_ctrl_bresp;
-wire                                 axil_app_ctrl_bvalid;
-wire                                 axil_app_ctrl_bready;
-wire [AXIL_APP_CTRL_ADDR_WIDTH-1:0]  axil_app_ctrl_araddr;
-wire [2:0]                           axil_app_ctrl_arprot;
-wire                                 axil_app_ctrl_arvalid;
-wire                                 axil_app_ctrl_arready;
-wire [AXIL_APP_CTRL_DATA_WIDTH-1:0]  axil_app_ctrl_rdata;
-wire [1:0]                           axil_app_ctrl_rresp;
-wire                                 axil_app_ctrl_rvalid;
-wire                                 axil_app_ctrl_rready;
-
-// AXI 
+// M_AXI for UDP packets (PL<->PS)
 wire [00:00] fpga_core_axi_arid   ;
 wire [31:00] fpga_core_axi_araddr ;
 wire [07:00] fpga_core_axi_arlen  ;
@@ -311,109 +223,45 @@ wire [01:00] fpga_core_axi_bresp  ;
 wire         fpga_core_axi_bvalid ;
 wire         fpga_core_axi_bready ;
 
+// Control
 wire [31:00] shared_mem_ptr_s;
-
-// implements an interrupt stretching mechanism to extend the duration 
-// of an interrupt signal to ensure that it is long enough to be detected 
-// by the receiving system. 
-reg [(IRQ_COUNT*IRQ_STRETCH)-1:0] irq_stretch = {(IRQ_COUNT*IRQ_STRETCH){1'b0}};
-always @(posedge zynq_pl_clk) begin
-    if (zynq_pl_reset) begin
-        irq_stretch <= {(IRQ_COUNT*IRQ_STRETCH){1'b0}};
-    end else begin
-        /* IRQ shift vector */
-        irq_stretch <= {irq_stretch[0 +: (IRQ_COUNT*IRQ_STRETCH)-IRQ_COUNT], irq};
-    end
-end
-
-reg [IRQ_COUNT-1:0] zynq_irq;
-integer i, k;
-always @* begin
-    for (k = 0; k < IRQ_COUNT; k = k + 1) begin
-        zynq_irq[k] = 1'b0;
-        for (i = 0; i < (IRQ_COUNT*IRQ_STRETCH); i = i + IRQ_COUNT) begin
-            zynq_irq[k] = zynq_irq[k] | irq_stretch[k + i];
-        end
-    end
-end
 
 // Zynq UltraScale+ PS
 zynq_ps zynq_ps_inst (
-    .pl_clk0(zynq_pl_clk),
-    .pl_reset(zynq_pl_reset),
-    .pl_ps_irq0(zynq_irq),
-
-    .m_axil_ctrl_araddr(axil_ctrl_araddr),
-    .m_axil_ctrl_arprot(axil_ctrl_arprot),
-    .m_axil_ctrl_arready(axil_ctrl_arready),
-    .m_axil_ctrl_arvalid(axil_ctrl_arvalid),
-    .m_axil_ctrl_awaddr(axil_ctrl_awaddr),
-    .m_axil_ctrl_awprot(axil_ctrl_awprot),
-    .m_axil_ctrl_awready(axil_ctrl_awready),
-    .m_axil_ctrl_awvalid(axil_ctrl_awvalid),
-    .m_axil_ctrl_bready(axil_ctrl_bready),
-    .m_axil_ctrl_bresp(axil_ctrl_bresp),
-    .m_axil_ctrl_bvalid(axil_ctrl_bvalid),
-    .m_axil_ctrl_rdata(axil_ctrl_rdata),
-    .m_axil_ctrl_rready(axil_ctrl_rready),
-    .m_axil_ctrl_rresp(axil_ctrl_rresp),
-    .m_axil_ctrl_rvalid(axil_ctrl_rvalid),
-    .m_axil_ctrl_wdata(axil_ctrl_wdata),
-    .m_axil_ctrl_wready(axil_ctrl_wready),
-    .m_axil_ctrl_wstrb(axil_ctrl_wstrb),
-    .m_axil_ctrl_wvalid(axil_ctrl_wvalid),
-
-    .m_axil_app_ctrl_araddr(axil_app_ctrl_araddr),
-    .m_axil_app_ctrl_arprot(axil_app_ctrl_arprot),
-    .m_axil_app_ctrl_arready(axil_app_ctrl_arready),
-    .m_axil_app_ctrl_arvalid(axil_app_ctrl_arvalid),
-    .m_axil_app_ctrl_awaddr(axil_app_ctrl_awaddr),
-    .m_axil_app_ctrl_awprot(axil_app_ctrl_awprot),
-    .m_axil_app_ctrl_awready(axil_app_ctrl_awready),
-    .m_axil_app_ctrl_awvalid(axil_app_ctrl_awvalid),
-    .m_axil_app_ctrl_bready(axil_app_ctrl_bready),
-    .m_axil_app_ctrl_bresp(axil_app_ctrl_bresp),
-    .m_axil_app_ctrl_bvalid(axil_app_ctrl_bvalid),
-    .m_axil_app_ctrl_rdata(axil_app_ctrl_rdata),
-    .m_axil_app_ctrl_rready(axil_app_ctrl_rready),
-    .m_axil_app_ctrl_rresp(axil_app_ctrl_rresp),
-    .m_axil_app_ctrl_rvalid(axil_app_ctrl_rvalid),
-    .m_axil_app_ctrl_wdata(axil_app_ctrl_wdata),
-    .m_axil_app_ctrl_wready(axil_app_ctrl_wready),
-    .m_axil_app_ctrl_wstrb(axil_app_ctrl_wstrb),
-    .m_axil_app_ctrl_wvalid(axil_app_ctrl_wvalid),
-    .GPIO_SHMEM_tri_o  (shared_mem_ptr_s),
+    .clk_156mhz_i      (clk_156mhz_int   ),
+    .rstn_156mhz_i     (~rst_156mhz_int  ),
+    .GPIO_SHMEM_tri_o  (shared_mem_ptr_s ),
 
     .s_axi_hp0_araddr  (fpga_core_axi_araddr  ),
     .s_axi_hp0_arburst (fpga_core_axi_arburst ),
     .s_axi_hp0_arcache (fpga_core_axi_arcache ),
-    .s_axi_hp0_arid    (fpga_core_axi_arid    ),
+    // .s_axi_hp0_arid    (fpga_core_axi_arid    ),
     .s_axi_hp0_arlen   (fpga_core_axi_arlen   ),
     .s_axi_hp0_arlock  (fpga_core_axi_arlock  ),
     .s_axi_hp0_arprot  (fpga_core_axi_arprot  ),
     .s_axi_hp0_arqos   (   ),
     .s_axi_hp0_arready (fpga_core_axi_arready ),
     .s_axi_hp0_arsize  (fpga_core_axi_arsize  ),
-    .s_axi_hp0_aruser  (  ),
+    // .s_axi_hp0_aruser  (  ),
     .s_axi_hp0_arvalid (fpga_core_axi_arvalid ),
     .s_axi_hp0_awaddr  (fpga_core_axi_awaddr  ),
     .s_axi_hp0_awburst (fpga_core_axi_awburst ),
     .s_axi_hp0_awcache (fpga_core_axi_awcache ),
-    .s_axi_hp0_awid    (fpga_core_axi_awid    ),
+    // .s_axi_hp0_awid    (fpga_core_axi_awid    ),
     .s_axi_hp0_awlen   (fpga_core_axi_awlen   ),
     .s_axi_hp0_awlock  (fpga_core_axi_awlock  ),
     .s_axi_hp0_awprot  (fpga_core_axi_awprot  ),
     .s_axi_hp0_awqos   (   ),
     .s_axi_hp0_awready (fpga_core_axi_awready ),
     .s_axi_hp0_awsize  (fpga_core_axi_awsize  ),
-    .s_axi_hp0_awuser  (  ),
+    // .s_axi_hp0_awuser  (  ),
     .s_axi_hp0_awvalid (fpga_core_axi_awvalid ),
-    .s_axi_hp0_bid     (fpga_core_axi_bid     ),
+    // .s_axi_hp0_bid     (fpga_core_axi_bid     ),
     .s_axi_hp0_bready  (fpga_core_axi_bready  ),
     .s_axi_hp0_bresp   (fpga_core_axi_bresp   ),
     .s_axi_hp0_bvalid  (fpga_core_axi_bvalid  ),
     .s_axi_hp0_rdata   (fpga_core_axi_rdata   ),
-    .s_axi_hp0_rid     (fpga_core_axi_rid     ),
+    // .s_axi_hp0_rid     (fpga_core_axi_rid     ),
     .s_axi_hp0_rlast   (fpga_core_axi_rlast   ),
     .s_axi_hp0_rready  (fpga_core_axi_rready  ),
     .s_axi_hp0_rresp   (fpga_core_axi_rresp   ),

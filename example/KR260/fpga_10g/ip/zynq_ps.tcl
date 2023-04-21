@@ -103,7 +103,7 @@ set_property -dict [list \
     CONFIG.PSU__USE__M_AXI_GP2 {0} \
     CONFIG.PSU__USE__S_AXI_GP0 {0} \
     CONFIG.PSU__USE__S_AXI_GP2 {1} \
-    CONFIG.PSU__USE__IRQ0 {1} \
+    CONFIG.PSU__USE__IRQ0 {0} \
     CONFIG.PSU__CRF_APB__ACPU_CTRL__SRCSEL {APLL} \
     CONFIG.PSU__CRF_APB__DDR_CTRL__SRCSEL {DPLL} \
     CONFIG.PSU__CRF_APB__DP_VIDEO_REF_CTRL__SRCSEL {VPLL} \
@@ -127,9 +127,6 @@ set_property -dict [list \
     CONFIG.PSU__CRL_APB__SDIO1_REF_CTRL__SRCSEL {IOPLL} \
 ] $zynq_ultra_ps
 
-# control AXI interconnect
-set axi_interconnect_ctrl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect axi_interconnect_ctrl ]
-
 # reset
 set proc_sys_reset [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset proc_sys_reset ]
 
@@ -141,13 +138,7 @@ make_bd_pins_external $pl_clk0
 set_property name pl_clk0 [get_bd_ports -of_objects [get_bd_nets -of_objects $pl_clk0]]
 set pl_clk0_port [get_bd_ports -of_objects [get_bd_nets -of_objects $pl_clk0]]
 
-connect_bd_net $pl_clk0 [get_bd_pins $zynq_ultra_ps/maxihpm0_fpd_aclk]
-connect_bd_net $pl_clk0 [get_bd_pins $zynq_ultra_ps/saxihp0_fpd_aclk]
 connect_bd_net $pl_clk0 [get_bd_pins $proc_sys_reset/slowest_sync_clk]
-connect_bd_net $pl_clk0 [get_bd_pins $axi_interconnect_ctrl/ACLK]
-connect_bd_net $pl_clk0 [get_bd_pins $axi_interconnect_ctrl/S00_ACLK]
-connect_bd_net $pl_clk0 [get_bd_pins $axi_interconnect_ctrl/M00_ACLK]
-connect_bd_net $pl_clk0 [get_bd_pins $axi_interconnect_ctrl/M01_ACLK]
 
 set pl_clk0_busif [list]
 
@@ -159,54 +150,50 @@ set pl_reset [get_bd_pins $proc_sys_reset/peripheral_reset]
 make_bd_pins_external $pl_reset
 set_property name pl_reset [get_bd_ports -of_objects [get_bd_nets -of_objects $pl_reset]]
 
-set interconnect_aresetn [get_bd_pins $proc_sys_reset/interconnect_aresetn]
-connect_bd_net $interconnect_aresetn [get_bd_pins $axi_interconnect_ctrl/ARESETN]
-connect_bd_net $interconnect_aresetn [get_bd_pins $axi_interconnect_ctrl/S00_ARESETN]
-connect_bd_net $interconnect_aresetn [get_bd_pins $axi_interconnect_ctrl/M00_ARESETN]
-connect_bd_net $interconnect_aresetn [get_bd_pins $axi_interconnect_ctrl/M01_ARESETN]
+# robotcore-udpip interface: clk and rst for S_AXI and M_AXI
+create_bd_port -dir I -type clk -freq_hz 156250000 clk_156mhz_i
+create_bd_port -dir I -type rst rstn_156mhz_i
 
-# MMIO
-connect_bd_intf_net [get_bd_intf_pins $zynq_ultra_ps/M_AXI_HPM0_FPD] [get_bd_intf_pins $axi_interconnect_ctrl/S00_AXI]
+# robotcore-udpip interface S_AXI -> HP0
 
-# Control interface
-set m_axil_ctrl_pin [get_bd_intf_pins $axi_interconnect_ctrl/M00_AXI]
-make_bd_intf_pins_external $m_axil_ctrl_pin
-set_property name m_axil_ctrl [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $m_axil_ctrl_pin]]
-set m_axil_ctrl_port [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $m_axil_ctrl_pin]]
-set_property -dict [list \
-    CONFIG.PROTOCOL AXI4LITE \
-    CONFIG.DATA_WIDTH 32 \
-    CONFIG.ADDR_WIDTH 24 \
-] $m_axil_ctrl_port
-lappend pl_clk0_busif $m_axil_ctrl_port
+connect_bd_net [get_bd_ports clk_156mhz_i] [get_bd_pins zynq_ultra_ps/saxihp0_fpd_aclk]
+# Smart connect
+create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 smartconnect_0
+set_property -dict [list CONFIG.NUM_SI {1}] [get_bd_cells smartconnect_0]
+connect_bd_intf_net [get_bd_intf_pins $zynq_ultra_ps/S_AXI_HP0_FPD] [get_bd_intf_pins smartconnect_0/M00_AXI]
+connect_bd_net [get_bd_ports clk_156mhz_i] [get_bd_pins smartconnect_0/aclk]
+connect_bd_net [get_bd_ports rstn_156mhz_i] [get_bd_pins smartconnect_0/aresetn]
+make_bd_intf_pins_external  [get_bd_intf_pins smartconnect_0/S00_AXI]
+set_property name s_axi_hp0 [get_bd_intf_ports S00_AXI_0]
+set_property CONFIG.DATA_WIDTH 64 [get_bd_intf_ports /s_axi_hp0]
+set_property -dict [list CONFIG.FREQ_HZ {156250000}] [get_bd_intf_ports s_axi_hp0]
+# Assign addresses
+assign_bd_address -target_address_space /zynq_ultra_ps/Data [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
+assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_DDR_HIGH] -force
+assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_QSPI] -force
+assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_DDR_LOW] -force
+assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_LPS_OCM] -force
 
-# Application control interface
-set m_axil_app_ctrl_pin [get_bd_intf_pins $axi_interconnect_ctrl/M01_AXI]
-make_bd_intf_pins_external $m_axil_app_ctrl_pin
-set_property name m_axil_app_ctrl [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $m_axil_app_ctrl_pin]]
-set m_axil_app_ctrl_port [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $m_axil_app_ctrl_pin]]
-set_property -dict [list \
-    CONFIG.PROTOCOL AXI4LITE \
-    CONFIG.DATA_WIDTH 32 \
-    CONFIG.ADDR_WIDTH 24 \
-] $m_axil_app_ctrl_port
-lappend pl_clk0_busif $m_axil_app_ctrl_port
+# robotcore-udpip interface M_AXI -> HPM0
 
-# DMA interface
-set s_axi_hp0_pin [get_bd_intf_pins $zynq_ultra_ps/S_AXI_HP0_FPD]
-make_bd_intf_pins_external $s_axi_hp0_pin
-set_property name s_axi_hp0 [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $s_axi_hp0_pin]]
-set s_axi_hp0_port [get_bd_intf_ports -of_objects [get_bd_intf_nets -of_objects $s_axi_hp0_pin]]
-lappend pl_clk0_busif $s_axi_hp0_port
-
-# IRQ
-set pl_ps_irq0 [get_bd_pins $zynq_ultra_ps/pl_ps_irq0]
-make_bd_pins_external $pl_ps_irq0
-set_property name pl_ps_irq0 [get_bd_ports -of_objects [get_bd_nets -of_objects $pl_ps_irq0]]
-set pl_ps_irq0_port [get_bd_ports -of_objects [get_bd_nets -of_objects $pl_ps_irq0]]
-set_property -dict [list \
-    CONFIG.PortWidth 8 \
-] $pl_ps_irq0_port
+connect_bd_net [get_bd_ports clk_156mhz_i] [get_bd_pins zynq_ultra_ps/maxihpm0_fpd_aclk]
+# Smart connect
+create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 smartconnect_1
+set_property -dict [list CONFIG.NUM_SI {1}] [get_bd_cells smartconnect_1]
+connect_bd_intf_net [get_bd_intf_pins $zynq_ultra_ps/M_AXI_HPM0_FPD] [get_bd_intf_pins smartconnect_1/S00_AXI]
+connect_bd_net [get_bd_ports clk_156mhz_i] [get_bd_pins smartconnect_1/aclk]
+connect_bd_net [get_bd_ports rstn_156mhz_i] [get_bd_pins smartconnect_1/aresetn]
+# TEMP (GPIO)
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0
+set_property -dict [list CONFIG.C_ALL_OUTPUTS {1}] [get_bd_cells axi_gpio_0]
+connect_bd_net [get_bd_ports clk_156mhz_i] [get_bd_pins axi_gpio_0/s_axi_aclk]
+connect_bd_net [get_bd_ports rstn_156mhz_i] [get_bd_pins axi_gpio_0/s_axi_aresetn]
+connect_bd_intf_net [get_bd_intf_pins smartconnect_1/M00_AXI] [get_bd_intf_pins axi_gpio_0/S_AXI]
+make_bd_intf_pins_external  [get_bd_intf_pins axi_gpio_0/GPIO]
+set_property name GPIO_SHMEM [get_bd_intf_ports GPIO_0]
+# Assign addresses
+assign_bd_address -target_address_space /zynq_ultra_ps/Data [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
+set_property offset 0x00A0000000 [get_bd_addr_segs {zynq_ultra_ps/Data/SEG_axi_gpio_0_Reg}]
 
 # Port clock associations
 set lst [list]
@@ -214,15 +201,6 @@ foreach port $pl_clk0_busif {
     lappend lst [get_property name $port]
 }
 set_property CONFIG.ASSOCIATED_BUSIF [join $lst ":"] $pl_clk0_port
-
-# Assign addresses
-assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_DDR_HIGH] -force
-assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_QSPI] -force
-assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_DDR_LOW] -force
-assign_bd_address -target_address_space /s_axi_hp0 [get_bd_addr_segs $zynq_ultra_ps/SAXIGP0/HP0_LPS_OCM] -force
-
-assign_bd_address -offset 0xA000_0000 -range 16M -target_address_space $zynq_ultra_ps/Data [get_bd_addr_segs $m_axil_ctrl_port/Reg] -force
-assign_bd_address -offset 0xA800_0000 -range 16M -target_address_space $zynq_ultra_ps/Data [get_bd_addr_segs $m_axil_app_ctrl_port/Reg] -force
 
 validate_bd_design
 
