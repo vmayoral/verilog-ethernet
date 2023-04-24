@@ -22,6 +22,10 @@ THE SOFTWARE.
 
 """
 
+###################################################################################
+# Imports
+###################################################################################
+
 import logging
 import os
 
@@ -36,7 +40,11 @@ from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
 
 from cocotbext.eth import XgmiiFrame, XgmiiSource, XgmiiSink
+from cocotbext.axi import AxiBus, AxiRam
 
+###################################################################################
+# TB class (common for all tests)
+###################################################################################
 
 class TB:
     def __init__(self, dut):
@@ -53,19 +61,9 @@ class TB:
         cocotb.start_soon(Clock(dut.sfp0_tx_clk, 6.4, units="ns").start())
         self.sfp0_sink = XgmiiSink(dut.sfp0_txd, dut.sfp0_txc, dut.sfp0_tx_clk, dut.sfp0_tx_rst)
 
-        # No push buttons, nor DIP switches
-        #
-        # dut.btnu.setimmediatevalue(0)
-        # dut.btnl.setimmediatevalue(0)
-        # dut.btnd.setimmediatevalue(0)
-        # dut.btnr.setimmediatevalue(0)
-        # dut.btnc.setimmediatevalue(0)
-        # dut.sw.setimmediatevalue(0)
-
-        # No PL-side UART
-        #
-        # dut.uart_rxd.setimmediatevalue(0)
-        # dut.uart_rts.setimmediatevalue(0)
+        # AXI master interface
+        self.axi_ram = AxiRam(AxiBus.from_prefix(dut, "m_axi"), dut.clk, dut.rst, size=2**16)
+        self.dut.shared_mem_ptr_i = 64
 
     async def init(self):
 
@@ -87,79 +85,42 @@ class TB:
         self.dut.sfp0_rx_rst.value = 0
         self.dut.sfp0_tx_rst.value = 0
 
+###################################################################################
+# Test: sfprx_to_shmem 
+# Stimulus: SFP packet generated and sent to DUT SFP RX port
+# Expected: packet payload available at DUT m_axi 
+###################################################################################
 
 @cocotb.test()
 async def run_test(dut):
 
-    tb = TB(dut)
+    # Initialize TB
 
+    tb = TB(dut)
     await tb.init()
+
+    # Generate and send UDP RX packet
 
     tb.log.info("test UDP RX packet")
 
     payload = bytes([x % 256 for x in range(256)])
     eth = Ether(src='5a:51:52:53:54:55', dst='02:00:00:00:00:00')
-    ip = IP(src='192.168.1.100', dst='192.168.1.128')
+    ip = IP(src='192.168.2.100', dst='192.168.2.128')
     udp = UDP(sport=5678, dport=1234)
     test_pkt = eth / ip / udp / payload
 
     test_frame = XgmiiFrame.from_payload(test_pkt.build())
-
     await tb.sfp0_source.send(test_frame)
 
-    tb.log.info("receive ARP request")
+    # Dump shared memory before     
 
-    rx_frame = await tb.sfp0_sink.recv()
-
-    rx_pkt = Ether(bytes(rx_frame.get_payload()))
-
-    tb.log.info("RX packet: %s", repr(rx_pkt))
-
-    assert rx_pkt.dst == 'ff:ff:ff:ff:ff:ff'
-    assert rx_pkt.src == test_pkt.dst
-    assert rx_pkt[ARP].hwtype == 1
-    assert rx_pkt[ARP].ptype == 0x0800
-    assert rx_pkt[ARP].hwlen == 6
-    assert rx_pkt[ARP].plen == 4
-    assert rx_pkt[ARP].op == 1
-    assert rx_pkt[ARP].hwsrc == test_pkt.dst
-    assert rx_pkt[ARP].psrc == test_pkt[IP].dst
-    assert rx_pkt[ARP].hwdst == '00:00:00:00:00:00'
-    assert rx_pkt[ARP].pdst == test_pkt[IP].src
-
-    tb.log.info("send ARP response")
-
-    eth = Ether(src=test_pkt.src, dst=test_pkt.dst)
-    arp = ARP(hwtype=1, ptype=0x0800, hwlen=6, plen=4, op=2,
-        hwsrc=test_pkt.src, psrc=test_pkt[IP].src,
-        hwdst=test_pkt.dst, pdst=test_pkt[IP].dst)
-    resp_pkt = eth / arp
-
-    resp_frame = XgmiiFrame.from_payload(resp_pkt.build())
-
-    await tb.sfp0_source.send(resp_frame)
-
-    tb.log.info("receive UDP packet")
-
-    rx_frame = await tb.sfp0_sink.recv()
-
-    rx_pkt = Ether(bytes(rx_frame.get_payload()))
-
-    tb.log.info("RX packet: %s", repr(rx_pkt))
-
-    assert rx_pkt.dst == test_pkt.src
-    assert rx_pkt.src == test_pkt.dst
-    assert rx_pkt[IP].dst == test_pkt[IP].src
-    assert rx_pkt[IP].src == test_pkt[IP].dst
-    assert rx_pkt[UDP].dport == test_pkt[UDP].sport
-    assert rx_pkt[UDP].sport == test_pkt[UDP].dport
-    assert rx_pkt[UDP].payload == test_pkt[UDP].payload
-
-    await RisingEdge(dut.clk)
+    for _ in range(200): await RisingEdge(dut.clk)
+    tb.log.info(tb.axi_ram.hexdump_str(0x0000, 256, prefix="RAM"))
     await RisingEdge(dut.clk)
 
-
-# cocotb-test
+###################################################################################
+# paths, cocotb and simulator definitions
+###################################################################################
 
 tests_dir = os.path.abspath(os.path.dirname(__file__))
 rtl_dir = os.path.abspath(os.path.join(tests_dir, '..', '..', 'rtl'))
@@ -202,6 +163,8 @@ def test_fpga_core(request):
         os.path.join(axis_rtl_dir, "axis_fifo.v"),
         os.path.join(axis_rtl_dir, "axis_async_fifo.v"),
         os.path.join(axis_rtl_dir, "axis_async_fifo_adapter.v"),
+        os.path.join(axis_rtl_dir, "axi_dma_wr.v"),
+        os.path.join(axis_rtl_dir, "axi_dma_rd.v"),
     ]
 
     parameters = {}

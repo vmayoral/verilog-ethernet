@@ -61,7 +61,7 @@ module fpga_core
     /*
      * Master AXI (for udp rx/tx)
      */
-    output wire [00:00] m_axi_arid   ,
+    output wire [07:00] m_axi_arid   ,
     output wire [31:00] m_axi_araddr ,
     output wire [07:00] m_axi_arlen  ,
     output wire [02:00] m_axi_arsize ,
@@ -71,13 +71,13 @@ module fpga_core
     output wire [02:00] m_axi_arprot ,
     output wire         m_axi_arvalid,
     input  wire         m_axi_arready,
-    input  wire [01:00] m_axi_rid    ,
+    input  wire [07:00] m_axi_rid    ,
     input  wire [63:00] m_axi_rdata  ,
     input  wire [01:00] m_axi_rresp  ,
     input  wire         m_axi_rlast  ,
     input  wire         m_axi_rvalid ,
     output wire         m_axi_rready ,     
-    output wire [00:00] m_axi_awid   ,
+    output wire [07:00] m_axi_awid   ,
     output wire [31:00] m_axi_awaddr ,
     output wire [07:00] m_axi_awlen  ,
     output wire [02:00] m_axi_awsize ,
