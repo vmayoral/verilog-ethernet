@@ -672,11 +672,14 @@ axi_dma_wr #(
 //     .enable                         (1'b1               )
 // );
 
-// Temp: loopback
-assign axis_udp_tx_payload_tdata  = axis_udp_rx_payload_tdata ;
-assign axis_udp_tx_payload_tkeep  = axis_udp_rx_payload_tkeep ;
-assign axis_udp_tx_payload_tvalid = axis_udp_rx_payload_tvalid;
-assign axis_udp_tx_payload_tlast  = axis_udp_rx_payload_tlast ;
+// Dump waves for simulation
+`ifdef COCOTB_SIM
+initial begin
+  $dumpfile ("fpga_core.vcd");
+  $dumpvars (0, fpga_core);
+  #1;
+end
+`endif
 
 endmodule
 
