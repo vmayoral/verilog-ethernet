@@ -92,7 +92,7 @@ class TB:
 ###################################################################################
 
 @cocotb.test()
-async def run_test(dut):
+async def run_test_2048byte_udp_rx(dut):
 
     # Initialize TB
 
@@ -104,18 +104,22 @@ async def run_test(dut):
     tb.log.info("test UDP RX packet")
 
     payload = bytes([x % 256 for x in range(256)])
+    payload_2048b = payload
+    for _ in range(int(2048/256)-1): payload_2048b += payload
+
     eth = Ether(src='5a:51:52:53:54:55', dst='02:00:00:00:00:00')
     ip = IP(src='192.168.2.100', dst='192.168.2.128')
     udp = UDP(sport=5678, dport=1234)
-    test_pkt = eth / ip / udp / payload
+    test_pkt = eth / ip / udp / payload_2048b
 
     test_frame = XgmiiFrame.from_payload(test_pkt.build())
     await tb.sfp0_source.send(test_frame)
+    for _ in range(1000): await RisingEdge(dut.clk)
 
-    # Dump shared memory before     
-
-    for _ in range(200): await RisingEdge(dut.clk)
-    tb.log.info(tb.axi_ram.hexdump_str(0x0000, 256, prefix="RAM"))
+    # Check memory content amd dump it
+    read_str = tb.axi_ram.read(int(tb.dut.shared_mem_ptr_i), 2048)
+    tb.log.info(tb.axi_ram.hexdump_str(0x0000, 4096, prefix="RAM"))
+    assert(read_str == payload_2048b)
     await RisingEdge(dut.clk)
 
 ###################################################################################
