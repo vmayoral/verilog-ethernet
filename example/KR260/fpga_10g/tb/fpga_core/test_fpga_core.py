@@ -123,6 +123,48 @@ async def run_test_2048byte_udp_rx(dut):
     await RisingEdge(dut.clk)
 
 ###################################################################################
+# Test: shmem_to_sfprx
+# Stimulus: UDP packet payload placed at shared memory 
+# Expected: packet payload available at DUT sfp tx 
+###################################################################################
+
+@cocotb.test()
+async def run_test_2048byte_udp_tx(dut):
+
+    # Initialize TB
+
+    tb = TB(dut)
+    await tb.init()
+
+    # Generate and send UDP TX packet
+
+    tb.log.info("test UDP TX packet")
+    payload = bytes([x % 256 for x in range(256)])
+    payload_2048b = payload
+    for _ in range(int(2048/256)-1): payload_2048b += payload
+    tb.axi_ram.write(int(tb.dut.shared_mem_ptr_i), payload_2048b)
+    tb.log.info(tb.axi_ram.hexdump_str(0x0000, 4096, prefix="RAM"))
+    
+    rx_frame = await tb.sfp0_sink.recv()
+    rx_pkt = Ether(bytes(rx_frame.get_payload()))
+    tb.log.info("RX packet: %s", repr(rx_pkt))
+    tb.log.info(rx_pkt.payload)
+
+    # assert rx_pkt.dst == 'ff:ff:ff:ff:ff:ff'
+    # assert rx_pkt.src == test_pkt.dst
+    # assert rx_pkt[ARP].hwtype == 1
+    # assert rx_pkt[ARP].ptype == 0x0800
+    # assert rx_pkt[ARP].hwlen == 6
+    # assert rx_pkt[ARP].plen == 4
+    # assert rx_pkt[ARP].op == 1
+    # assert rx_pkt[ARP].hwsrc == test_pkt.dst
+    # assert rx_pkt[ARP].psrc == test_pkt[IP].dst
+    # assert rx_pkt[ARP].hwdst == '00:00:00:00:00:00'
+    # assert rx_pkt[ARP].pdst == test_pkt[IP].src
+
+    for _ in range(10): await RisingEdge(dut.clk)
+
+###################################################################################
 # paths, cocotb and simulator definitions
 ###################################################################################
 

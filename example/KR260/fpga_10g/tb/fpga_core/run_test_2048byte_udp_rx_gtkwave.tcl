@@ -1,5 +1,17 @@
 # add_waves.tcl 
 set sig_list {                                 \
+    clk                                        \
+    rst                                        \
+    sfp0_tx_clk                                \
+    sfp0_tx_rst                                \
+    sfp0_txd                                   \
+    sfp0_txc                                   \
+    axis_udp_rx_payload_tdata                  \
+    axis_udp_rx_payload_tkeep                  \
+    axis_udp_rx_payload_tvalid                 \
+    axis_udp_rx_payload_tready                 \
+    axis_udp_rx_payload_tlast                  \
+    axis_udp_rx_payload_tuser                  \    
     axi_dma_wr_inst.clk                        \ 
     axi_dma_wr_inst.rst                        \ 
     axi_dma_wr_inst.enable                     \ 
@@ -36,28 +48,6 @@ set sig_list {                                 \
     m_axi_bresp                                \ 
     m_axi_bvalid                               \ 
     m_axi_bready                               \
-    m_axi_arid                                 \
-    m_axi_araddr                               \
-    m_axi_arlen                                \
-    m_axi_arsize                               \
-    m_axi_arburst                              \
-    m_axi_arlock                               \
-    m_axi_arcache                              \
-    m_axi_arprot                               \
-    m_axi_arvalid                              \
-    m_axi_arready                              \
-    m_axi_rid                                  \
-    m_axi_rdata                                \
-    m_axi_rresp                                \
-    m_axi_rlast                                \
-    m_axi_rvalid                               \
-    m_axi_rready                               \      
-    axis_dma_rd_tdata                          \
-    axis_dma_rd_tkeep                          \
-    axis_dma_rd_tvalid                         \
-    axis_dma_rd_tready                         \
-    axis_dma_rd_tlast                          \
-    axis_dma_rd_tid                            \      
 }
 
 gtkwave::addSignalsFromList $sig_list

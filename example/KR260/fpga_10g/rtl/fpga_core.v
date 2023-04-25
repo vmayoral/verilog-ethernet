@@ -282,17 +282,23 @@ always @(posedge clk) begin
     end
 end
 
-assign tx_udp_hdr_valid = rx_udp_hdr_valid & match_cond;
+// assign tx_udp_hdr_valid = rx_udp_hdr_valid & match_cond;
 assign rx_udp_hdr_ready = (tx_eth_hdr_ready & match_cond) | no_match;
 assign tx_udp_ip_dscp = 0;
 assign tx_udp_ip_ecn = 0;
 assign tx_udp_ip_ttl = 64;
 assign tx_udp_ip_source_ip = local_ip;
-assign tx_udp_ip_dest_ip = rx_udp_ip_source_ip;
-assign tx_udp_source_port = rx_udp_dest_port;
-assign tx_udp_dest_port = rx_udp_source_port;
-assign tx_udp_length = rx_udp_length;
+// assign tx_udp_ip_dest_ip = rx_udp_ip_source_ip;
+// assign tx_udp_source_port = rx_udp_dest_port;
+// assign tx_udp_dest_port = rx_udp_source_port;
+// assign tx_udp_length = rx_udp_length;
 assign tx_udp_checksum = 0;
+
+assign tx_udp_hdr_valid = 1'b1; // TEMPORARY; anything to be checked to consider header as valid?
+assign tx_udp_ip_dest_ip =  {8'd192, 8'd168, 8'd2,   8'd2};
+assign tx_udp_source_port = 1234;
+assign tx_udp_dest_port = 5678;
+assign tx_udp_length = 2048;
 
 // Place first payload byte onto LEDs
 reg valid_last = 0;
@@ -566,11 +572,24 @@ always @(posedge clk) begin
         valid_address = 1;
     end
 end 
+reg valid_addr_last, valid_addr_sec2last;
+wire valid_addr_one_pulse;
+assign valid_addr_one_pulse = valid_addr_last & !valid_addr_sec2last;
+always @(posedge clk) begin
+    if (rst) begin
+        valid_addr_last     <= 0;
+        valid_addr_sec2last <= 0;
+    end else begin
+        valid_addr_last     <= valid_address;
+        valid_addr_sec2last <= valid_addr_last;
+    end
+end
 
 axi_dma_wr #(
     .AXI_DATA_WIDTH   (64),
     .AXI_ADDR_WIDTH   (32),
     .AXI_ID_WIDTH     (1),
+    .AXI_MAX_BURST_LEN(256),
     .AXIS_DATA_WIDTH  (64),
     .AXIS_KEEP_ENABLE (1),
     .AXIS_KEEP_WIDTH  (8),
@@ -618,59 +637,59 @@ axi_dma_wr #(
     .abort                          (1'b0 )
 );
 
-// axi_dma_rd #(
-//     .AXI_DATA_WIDTH           (64),
-//     .AXI_ADDR_WIDTH           (32),
-//     .AXI_ID_WIDTH             (1 ),
-//     .AXI_MAX_BURST_LEN        (16),
-//     .AXIS_DATA_WIDTH          (64),
-//     .AXIS_KEEP_ENABLE         (1 ),
-//     .AXIS_KEEP_WIDTH          (8 ),
-//     .AXIS_LAST_ENABLE         (1 ),
-//     .AXIS_ID_ENABLE           (0 ),
-//     .AXIS_DEST_ENABLE         (0 ),
-//     .AXIS_USER_ENABLE         (1 ),
-//     .AXIS_USER_WIDTH          (1 )   
-// ) axi_dma_rd_inst (
-//     .clk                            (clk),
-//     .rst                            (rst),
-//     .s_axis_read_desc_addr          (shared_mem_ptr_i),
-//     .s_axis_read_desc_len           (20'd7),
-//     .s_axis_read_desc_tag           (8'd0),
-//     .s_axis_read_desc_id            (1'b0),
-//     .s_axis_read_desc_dest          (),
-//     .s_axis_read_desc_user          (1'b0),
-//     .s_axis_read_desc_valid         (valid_address),
-//     .s_axis_read_desc_ready         ( ),
-//     .m_axis_read_desc_status_tag    ( ),
-//     .m_axis_read_desc_status_error  ( ),
-//     .m_axis_read_desc_status_valid  ( ),
-//     .m_axis_read_data_tdata         (axis_udp_tx_payload_tdata  ),
-//     .m_axis_read_data_tkeep         (axis_udp_tx_payload_tkeep  ),
-//     .m_axis_read_data_tvalid        (axis_udp_tx_payload_tvalid ),
-//     .m_axis_read_data_tready        (axis_udp_tx_payload_tready ),
-//     .m_axis_read_data_tlast         (axis_udp_tx_payload_tlast  ),
-//     .m_axis_read_data_tid           (                           ),
-//     .m_axis_read_data_tdest         (                           ),
-//     .m_axis_read_data_tuser         (axis_udp_tx_payload_tuser  ),
-//     .m_axi_arid                     (m_axi_arid         ),
-//     .m_axi_araddr                   (m_axi_araddr       ),
-//     .m_axi_arlen                    (m_axi_arlen        ),
-//     .m_axi_arsize                   (m_axi_arsize       ),
-//     .m_axi_arburst                  (m_axi_arburst      ),
-//     .m_axi_arlock                   (m_axi_arlock       ),
-//     .m_axi_arcache                  (m_axi_arcache      ),
-//     .m_axi_arprot                   (m_axi_arprot       ),
-//     .m_axi_arvalid                  (m_axi_arvalid      ),
-//     .m_axi_arready                  (m_axi_arready      ),
-//     .m_axi_rid                      (m_axi_rid          ),
-//     .m_axi_rdata                    (m_axi_rdata        ),
-//     .m_axi_rresp                    (m_axi_rresp        ),
-//     .m_axi_rlast                    (m_axi_rlast        ),
-//     .m_axi_rvalid                   (m_axi_rvalid       ),
-//     .m_axi_rready                   (m_axi_rready       ),
-//     .enable                         (1'b1               )
-// );
+axi_dma_rd #(
+    .AXI_DATA_WIDTH           (64),
+    .AXI_ADDR_WIDTH           (32),
+    .AXI_ID_WIDTH             (1 ),
+    .AXI_MAX_BURST_LEN        (256),
+    .AXIS_DATA_WIDTH          (64),
+    .AXIS_KEEP_ENABLE         (1 ),
+    .AXIS_KEEP_WIDTH          (8 ),
+    .AXIS_LAST_ENABLE         (1 ),
+    .AXIS_ID_ENABLE           (0 ),
+    .AXIS_DEST_ENABLE         (0 ),
+    .AXIS_USER_ENABLE         (1 ),
+    .AXIS_USER_WIDTH          (1 )   
+) axi_dma_rd_inst (
+    .clk                            (clk),
+    .rst                            (rst),
+    .s_axis_read_desc_addr          (shared_mem_ptr_i),
+    .s_axis_read_desc_len           (2048),
+    .s_axis_read_desc_tag           (8'd0),
+    .s_axis_read_desc_id            (1'b0),
+    .s_axis_read_desc_dest          (),
+    .s_axis_read_desc_user          (1'b0),
+    .s_axis_read_desc_valid         (valid_addr_one_pulse),
+    .s_axis_read_desc_ready         ( ),
+    .m_axis_read_desc_status_tag    ( ),
+    .m_axis_read_desc_status_error  ( ),
+    .m_axis_read_desc_status_valid  ( ),
+    .m_axis_read_data_tdata         (axis_udp_tx_payload_tdata  ),
+    .m_axis_read_data_tkeep         (axis_udp_tx_payload_tkeep  ),
+    .m_axis_read_data_tvalid        (axis_udp_tx_payload_tvalid ), // Important: one-cycle pulse per each transaction to be performed; otherwise, axi_dma_rd will queue a second transaction after the intended one
+    .m_axis_read_data_tready        (axis_udp_tx_payload_tready ),
+    .m_axis_read_data_tlast         (axis_udp_tx_payload_tlast  ),
+    .m_axis_read_data_tid           (                           ),
+    .m_axis_read_data_tdest         (                           ),
+    .m_axis_read_data_tuser         (axis_udp_tx_payload_tuser  ),
+    .m_axi_arid                     (m_axi_arid         ),
+    .m_axi_araddr                   (m_axi_araddr       ),
+    .m_axi_arlen                    (m_axi_arlen        ),
+    .m_axi_arsize                   (m_axi_arsize       ),
+    .m_axi_arburst                  (m_axi_arburst      ),
+    .m_axi_arlock                   (m_axi_arlock       ),
+    .m_axi_arcache                  (m_axi_arcache      ),
+    .m_axi_arprot                   (m_axi_arprot       ),
+    .m_axi_arvalid                  (m_axi_arvalid      ),
+    .m_axi_arready                  (m_axi_arready      ),
+    .m_axi_rid                      (m_axi_rid          ),
+    .m_axi_rdata                    (m_axi_rdata        ),
+    .m_axi_rresp                    (m_axi_rresp        ),
+    .m_axi_rlast                    (m_axi_rlast        ),
+    .m_axi_rvalid                   (m_axi_rvalid       ),
+    .m_axi_rready                   (m_axi_rready       ),
+    .enable                         (1'b1               )
+);
 
 // Dump waves for simulation
 `ifdef COCOTB_SIM
