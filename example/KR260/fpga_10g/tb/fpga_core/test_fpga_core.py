@@ -136,6 +136,13 @@ async def run_test_2048byte_udp_tx(dut):
     tb = TB(dut)
     await tb.init()
 
+    # Generate test_pkt (only to store src/dst info)
+
+    eth = Ether(src='5a:51:52:53:54:55', dst='02:00:00:00:00:00')
+    ip = IP(src='192.168.2.2', dst='192.168.2.128')
+    udp = UDP(sport=5678, dport=1234)
+    test_pkt = eth / ip / udp
+
     # Generate and send UDP TX packet
 
     tb.log.info("test UDP TX packet")
@@ -150,17 +157,43 @@ async def run_test_2048byte_udp_tx(dut):
     tb.log.info("RX packet: %s", repr(rx_pkt))
     tb.log.info(rx_pkt.payload)
 
-    # assert rx_pkt.dst == 'ff:ff:ff:ff:ff:ff'
-    # assert rx_pkt.src == test_pkt.dst
-    # assert rx_pkt[ARP].hwtype == 1
-    # assert rx_pkt[ARP].ptype == 0x0800
-    # assert rx_pkt[ARP].hwlen == 6
-    # assert rx_pkt[ARP].plen == 4
-    # assert rx_pkt[ARP].op == 1
-    # assert rx_pkt[ARP].hwsrc == test_pkt.dst
-    # assert rx_pkt[ARP].psrc == test_pkt[IP].dst
-    # assert rx_pkt[ARP].hwdst == '00:00:00:00:00:00'
-    # assert rx_pkt[ARP].pdst == test_pkt[IP].src
+    assert rx_pkt.dst == 'ff:ff:ff:ff:ff:ff'
+    assert rx_pkt.src == test_pkt.dst
+    assert rx_pkt[ARP].hwtype == 1
+    assert rx_pkt[ARP].ptype == 0x0800
+    assert rx_pkt[ARP].hwlen == 6
+    assert rx_pkt[ARP].plen == 4
+    assert rx_pkt[ARP].op == 1
+    assert rx_pkt[ARP].hwsrc == test_pkt.dst
+    assert rx_pkt[ARP].psrc == test_pkt[IP].dst
+    assert rx_pkt[ARP].hwdst == '00:00:00:00:00:00'
+    assert rx_pkt[ARP].pdst == test_pkt[IP].src
+
+    tb.log.info("send ARP response")
+
+    arp = ARP(hwtype=1, ptype=0x0800, hwlen=6, plen=4, op=2,
+        hwsrc=test_pkt.src, psrc=test_pkt[IP].src,
+        hwdst=test_pkt.dst, pdst=test_pkt[IP].dst)
+    resp_pkt = eth / arp
+
+    resp_frame = XgmiiFrame.from_payload(resp_pkt.build())
+
+    await tb.sfp0_source.send(resp_frame)
+
+    tb.log.info("receive UDP packet")
+
+    rx_frame = await tb.sfp0_sink.recv()
+
+    rx_pkt = Ether(bytes(rx_frame.get_payload()))
+
+    tb.log.info("RX packet: %s", repr(rx_pkt))
+
+    assert rx_pkt.dst == test_pkt.src
+    assert rx_pkt.src == test_pkt.dst
+    assert rx_pkt[IP].dst == test_pkt[IP].src
+    assert rx_pkt[IP].src == test_pkt[IP].dst
+    assert rx_pkt[UDP].dport == test_pkt[UDP].sport
+    assert rx_pkt[UDP].sport == test_pkt[UDP].dport
 
     for _ in range(10): await RisingEdge(dut.clk)
 
