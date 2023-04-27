@@ -2,10 +2,10 @@
 set sig_list {                                 \
     clk                                        \
     rst                                        \
-    sfp0_tx_clk                                \
-    sfp0_tx_rst                                \
-    sfp0_txd                                   \
-    sfp0_txc                                   \
+    sfp0_rx_clk                                \
+    sfp0_rx_rst                                \
+    sfp0_rxd                                   \
+    sfp0_rxc                                   \
     axis_udp_rx_payload_tdata                  \
     axis_udp_rx_payload_tkeep                  \
     axis_udp_rx_payload_tvalid                 \
