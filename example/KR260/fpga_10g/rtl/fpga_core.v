@@ -298,7 +298,7 @@ assign tx_udp_hdr_valid = 1'b1; // TEMPORARY; anything to be checked to consider
 assign tx_udp_ip_dest_ip =  {8'd192, 8'd168, 8'd2,   8'd2};
 assign tx_udp_source_port = 1234;
 assign tx_udp_dest_port = 5678;
-assign tx_udp_length = 2048;
+assign tx_udp_length = 1024;
 
 // Place first payload byte onto LEDs
 reg valid_last = 0;
@@ -602,7 +602,7 @@ axi_dma_wr #(
     .clk                            (clk),
     .rst                            (rst),
     .s_axis_write_desc_addr         (shared_mem_ptr_i ),
-    .s_axis_write_desc_len          (2048             ),
+    .s_axis_write_desc_len          (1024             ),
     .s_axis_write_desc_tag          (8'd0             ),
     .s_axis_write_desc_valid        (valid_address    ),
     .s_axis_write_desc_ready        (),
@@ -654,7 +654,7 @@ axi_dma_rd #(
     .clk                            (clk),
     .rst                            (rst),
     .s_axis_read_desc_addr          (shared_mem_ptr_i),
-    .s_axis_read_desc_len           (2048),
+    .s_axis_read_desc_len           (1024),
     .s_axis_read_desc_tag           (8'd0),
     .s_axis_read_desc_id            (1'b0),
     .s_axis_read_desc_dest          (),

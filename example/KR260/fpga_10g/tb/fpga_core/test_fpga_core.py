@@ -92,7 +92,7 @@ class TB:
 ###################################################################################
 
 @cocotb.test()
-async def run_test_2048byte_udp_rx(dut):
+async def run_test_1024byte_udp_rx(dut):
 
     # Initialize TB
 
@@ -104,9 +104,9 @@ async def run_test_2048byte_udp_rx(dut):
     tb.log.info("test UDP RX packet")
 
     payload = bytes([x % 256 for x in range(256)])
-    payload_2048b = payload
-    for _ in range(int(2048/256)-1): payload_2048b += payload
-
+    payload_1024b = payload
+    for _ in range(int(1024/256)-1): payload_1024b += payload
+    # Wrap packet
     eth = Ether(src='5a:51:52:53:54:55', dst='02:00:00:00:00:00')
     ip = IP(src='192.168.2.100', dst='192.168.2.128')
     udp = UDP(sport=5678, dport=1234)
@@ -117,9 +117,10 @@ async def run_test_2048byte_udp_rx(dut):
     for _ in range(1000): await RisingEdge(dut.clk)
 
     # Check memory content amd dump it
-    read_str = tb.axi_ram.read(int(tb.dut.shared_mem_ptr_i), 2048)
-    tb.log.info(tb.axi_ram.hexdump_str(0x0000, 4096, prefix="RAM"))
-    assert(read_str == payload_2048b)
+
+    read_str = tb.axi_ram.read(int(tb.dut.shared_mem_ptr_i), 1024)
+    tb.log.info("Dumping axi ram content..." + tb.axi_ram.hexdump_str(0x0000, 2048, prefix="RAM"))
+    assert(read_str == payload_1024b)
     await RisingEdge(dut.clk)
 
 ###################################################################################
@@ -129,7 +130,7 @@ async def run_test_2048byte_udp_rx(dut):
 ###################################################################################
 
 @cocotb.test()
-async def run_test_2048byte_udp_tx(dut):
+async def run_test_1024byte_udp_tx(dut):
 
     # Initialize TB
 
@@ -147,11 +148,10 @@ async def run_test_2048byte_udp_tx(dut):
 
     tb.log.info("test UDP TX packet")
     payload = bytes([x % 256 for x in range(256)])
-    payload_2048b = payload
-    for _ in range(int(2048/256)-1): payload_2048b += payload
-    tb.axi_ram.write(int(tb.dut.shared_mem_ptr_i), payload_2048b)
-    tb.log.info(tb.axi_ram.hexdump_str(0x0000, 4096, prefix="RAM"))
-    
+    payload_1024b = payload
+    for _ in range(int(1024/256)-1): payload_1024b += payload
+    tb.axi_ram.write(int(tb.dut.shared_mem_ptr_i), payload_1024b)
+    tb.log.info(tb.axi_ram.hexdump_str(0x0000, 2048, prefix="RAM"))
     rx_frame = await tb.sfp0_sink.recv()
     rx_pkt = Ether(bytes(rx_frame.get_payload()))
     tb.log.info("RX packet: %s", repr(rx_pkt))
