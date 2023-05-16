@@ -11,6 +11,9 @@ to ARP requests.
 *  FPGA: `XCK26-SFVC784-2LV-C` (or `-I`, if industrial-grade)
 *  PHY: 10G BASE-R PHY IP core and internal GTY transceiver
 
+## Installing PYNQ
+This reference design uses [PYNQ](https://github.com/Xilinx/Kria-PYNQ). Follow these instructions to install it.
+
 ## How to build
 Run `make` to build.  Ensure that the Xilinx Vivado toolchain components are
 in PATH.
